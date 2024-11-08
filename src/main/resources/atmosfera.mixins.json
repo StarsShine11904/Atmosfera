@@ -5,7 +5,6 @@
 	"compatibilityLevel": "JAVA_21",
 	"client": [
 		"BossBarHudAccessor",
-		"EntityMixin",
 		"MinecraftClientMixin",
 		"MixinClientWorld",
 		"WeightedSoundSetMixin"
