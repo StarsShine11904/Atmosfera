@@ -16,9 +16,11 @@
 
 package dev.hephaestus.atmosfera.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.sound.MusicInstance;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.sound.MusicSound;
 import net.minecraft.sound.MusicType;
@@ -26,21 +28,22 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Environment(EnvType.CLIENT)
 @Mixin(MinecraftClient.class)
 public class MinecraftClientMixin {
 	@Shadow @Nullable public ClientWorld world;
 
-	@Inject(method = "getMusicType", at = @At("RETURN"), cancellable = true)
-	private void atmosfera$getAmbientMusicType(CallbackInfoReturnable<MusicSound> cir) {
-		MusicSound sound = cir.getReturnValue();
+	@ModifyReturnValue(method = "getMusicInstance", at = @At("RETURN"))
+	private MusicInstance atmosfera$getAmbientMusic(MusicInstance original) {
+		MusicSound sound = original.music();
+		float volume = original.volume();
 
 		if (sound != MusicType.MENU && sound != MusicType.CREDITS && this.world != null) {
 			MusicSound atmosphericMusic = this.world.atmosfera$getAtmosphericSoundHandler().getMusicSound(sound);
-			cir.setReturnValue(atmosphericMusic);
+			return new MusicInstance(atmosphericMusic, volume); // keep the volume, so music fades out in the pale garden
 		}
+
+		return original;
 	}
 }
