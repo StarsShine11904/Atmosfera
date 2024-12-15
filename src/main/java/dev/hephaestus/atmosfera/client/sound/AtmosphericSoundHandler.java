@@ -16,7 +16,6 @@ import net.minecraft.util.Pair;
 import net.minecraft.util.math.random.Random;
 
 import java.util.*;
-import java.util.concurrent.*;
 
 public class AtmosphericSoundHandler {
     private static final Random RANDOM = Random.create();
@@ -26,19 +25,8 @@ public class AtmosphericSoundHandler {
     private final Collection<AtmosphericSound> sounds = new ArrayList<>();
     private final Collection<AtmosphericSound> musics = new ArrayList<>();
     private final Map<AtmosphericSound, AtmosphericSoundInstance> soundInstances = new WeakHashMap<>();
-    private final BlockingQueue<Runnable> taskQueue = new LinkedBlockingQueue<>();
-    private final ExecutorService executor;
 
     public AtmosphericSoundHandler(ClientWorld world) {
-        this.executor = new ThreadPoolExecutor(1, 1,
-                0, TimeUnit.MILLISECONDS,
-                this.taskQueue,
-                (runnable) -> {
-                    Thread thread = new Thread(runnable);
-                    thread.setDaemon(true);
-                    return thread;
-                });
-
         for (AtmosphericSoundDefinition definition : Atmosfera.SOUND_DEFINITIONS.values()) {
             ImmutableCollection.Builder<AtmosphericSoundModifier> modifiers = ImmutableList.builder();
 
@@ -61,12 +49,6 @@ public class AtmosphericSoundHandler {
     }
 
     public void tick() {
-        if (this.taskQueue.isEmpty()) {
-            this.executor.execute(this::tickSounds);
-        }
-    }
-
-    private void tickSounds() {
         ClientWorld world = MinecraftClient.getInstance().world;
 
         if (world != null) {
