@@ -1,0 +1,3 @@
+- [1.21.4] add `null` check for music, fixing a potential crash
+- fix a bunch of concurrency issues, including a rare `ConcurrentModificationException` crash when playing sound
+- replace thread pool of 4+ threads with two dedicated single-thread pools that discard old update tasks
