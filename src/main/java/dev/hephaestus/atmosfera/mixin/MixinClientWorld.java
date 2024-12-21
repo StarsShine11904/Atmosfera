@@ -2,7 +2,6 @@ package dev.hephaestus.atmosfera.mixin;
 
 import dev.hephaestus.atmosfera.client.sound.AtmosphericSoundHandler;
 import dev.hephaestus.atmosfera.client.sound.util.ClientWorldDuck;
-import dev.hephaestus.atmosfera.world.context.ContextUtil;
 import dev.hephaestus.atmosfera.world.context.EnvironmentContext;
 import dev.hephaestus.atmosfera.world.context.Sphere;
 import net.minecraft.client.MinecraftClient;
@@ -63,14 +62,12 @@ public class MixinClientWorld implements ClientWorldDuck {
             this.atmosfera$environmentContexts.put(EnvironmentContext.Size.SMALL, new Sphere(EnvironmentContext.Size.SMALL, player));
             this.atmosfera$environmentContexts.put(EnvironmentContext.Size.MEDIUM, new Sphere(EnvironmentContext.Size.MEDIUM, player));
             this.atmosfera$environmentContexts.put(EnvironmentContext.Size.LARGE, new Sphere(EnvironmentContext.Size.LARGE, player));
-            // set initialized last to prevent race condition for filling the hash map
             atmosfera$initialized = true;
         }
-        if (ContextUtil.TASK_QUEUE.isEmpty()) {
-            this.atmosfera$environmentContexts.get(EnvironmentContext.Size.SMALL).update();
-            this.atmosfera$environmentContexts.get(EnvironmentContext.Size.MEDIUM).update();
-            this.atmosfera$environmentContexts.get(EnvironmentContext.Size.LARGE).update();
-        }
+
+        this.atmosfera$environmentContexts.get(EnvironmentContext.Size.SMALL).update();
+        this.atmosfera$environmentContexts.get(EnvironmentContext.Size.MEDIUM).update();
+        this.atmosfera$environmentContexts.get(EnvironmentContext.Size.LARGE).update();
     }
 
     @Override
