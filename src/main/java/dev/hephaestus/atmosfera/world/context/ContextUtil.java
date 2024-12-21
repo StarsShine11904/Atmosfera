@@ -7,15 +7,21 @@ import java.util.concurrent.*;
 
 public final class ContextUtil {
     public static final byte[][][][] OFFSETS = new byte[3][][][];
-    public static final BlockingQueue<Runnable> TASK_QUEUE = new LinkedBlockingQueue<>();
-    public static final ExecutorService EXECUTOR = new ThreadPoolExecutor(4, 16,
-            0, TimeUnit.MILLISECONDS,
-            TASK_QUEUE,
+
+    public static ExecutorService buildDiscardingSingleDaemonThreadExecutor() {
+        return new ThreadPoolExecutor(1, 1,
+            0L, TimeUnit.MILLISECONDS,
+            new ArrayBlockingQueue<>(1),
             (runnable) -> {
                 Thread thread = new Thread(runnable);
                 thread.setDaemon(true);
                 return thread;
-            });
+            },
+            new ThreadPoolExecutor.DiscardOldestPolicy());
+    }
+
+    public static final ExecutorService UPPER_HEMISPHERE_EXECUTOR = buildDiscardingSingleDaemonThreadExecutor();
+    public static final ExecutorService LOWER_HEMISPHERE_EXECUTOR = buildDiscardingSingleDaemonThreadExecutor();
 
     private ContextUtil() {}
 
