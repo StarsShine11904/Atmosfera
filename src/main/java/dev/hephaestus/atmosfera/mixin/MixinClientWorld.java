@@ -12,7 +12,6 @@ import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Mixin;
@@ -22,7 +21,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.HashMap;
 import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
 
 @Mixin(ClientWorld.class)
 public class MixinClientWorld implements ClientWorldDuck {
@@ -63,14 +61,12 @@ public class MixinClientWorld implements ClientWorldDuck {
             this.atmosfera$environmentContexts.put(EnvironmentContext.Size.SMALL, new Sphere(EnvironmentContext.Size.SMALL, player));
             this.atmosfera$environmentContexts.put(EnvironmentContext.Size.MEDIUM, new Sphere(EnvironmentContext.Size.MEDIUM, player));
             this.atmosfera$environmentContexts.put(EnvironmentContext.Size.LARGE, new Sphere(EnvironmentContext.Size.LARGE, player));
-            // set initialized last to prevent race condition for filling the hash map
             atmosfera$initialized = true;
         }
-        if (ContextUtil.TASK_QUEUE.isEmpty()) {
-            this.atmosfera$environmentContexts.get(EnvironmentContext.Size.SMALL).update();
-            this.atmosfera$environmentContexts.get(EnvironmentContext.Size.MEDIUM).update();
-            this.atmosfera$environmentContexts.get(EnvironmentContext.Size.LARGE).update();
-        }
+
+        this.atmosfera$environmentContexts.get(EnvironmentContext.Size.SMALL).update();
+        this.atmosfera$environmentContexts.get(EnvironmentContext.Size.MEDIUM).update();
+        this.atmosfera$environmentContexts.get(EnvironmentContext.Size.LARGE).update();
     }
 
     @Override

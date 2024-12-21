@@ -16,7 +16,6 @@ import net.minecraft.util.Pair;
 import net.minecraft.util.math.random.Random;
 
 import java.util.*;
-import java.util.concurrent.*;
 
 public class AtmosphericSoundHandler {
     private static final Random RANDOM = Random.create();
@@ -26,19 +25,8 @@ public class AtmosphericSoundHandler {
     private final Collection<AtmosphericSound> sounds = new ArrayList<>();
     private final Collection<AtmosphericSound> musics = new ArrayList<>();
     private final Map<AtmosphericSound, AtmosphericSoundInstance> soundInstances = new WeakHashMap<>();
-    private final BlockingQueue<Runnable> taskQueue = new LinkedBlockingQueue<>();
-    private final ExecutorService executor;
 
     public AtmosphericSoundHandler(ClientWorld world) {
-        this.executor = new ThreadPoolExecutor(1, 1,
-                0, TimeUnit.MILLISECONDS,
-                this.taskQueue,
-                (runnable) -> {
-                    Thread thread = new Thread(runnable);
-                    thread.setDaemon(true);
-                    return thread;
-                });
-
         for (AtmosphericSoundDefinition definition : Atmosfera.SOUND_DEFINITIONS.values()) {
             ImmutableCollection.Builder<AtmosphericSoundModifier> modifiers = ImmutableList.builder();
 
@@ -61,16 +49,11 @@ public class AtmosphericSoundHandler {
     }
 
     public void tick() {
-        if (this.taskQueue.isEmpty()) {
-            this.executor.execute(this::tickSounds);
-        }
-    }
-
-    private void tickSounds() {
-        ClientWorld world = MinecraftClient.getInstance().world;
+        MinecraftClient client = MinecraftClient.getInstance();
+        ClientWorld world = client.world;
 
         if (world != null) {
-            SoundManager soundManager = MinecraftClient.getInstance().getSoundManager();
+            SoundManager soundManager = client.getSoundManager();
 
             world.atmosfera$updateEnvironmentContext();
 
@@ -79,7 +62,7 @@ public class AtmosphericSoundHandler {
                     float volume = definition.getVolume(world);
 
                     // The non-zero volume prevents the events getting triggered multiple times at volumes near zero.
-                    if (volume >= 0.0125 && MinecraftClient.getInstance().options.getSoundVolume(SoundCategory.AMBIENT) > 0) {
+                    if (volume >= 0.0125 && client.options.getSoundVolume(SoundCategory.AMBIENT) > 0) {
                         AtmosphericSoundInstance soundInstance = new AtmosphericSoundInstance(definition, 0.0001F);
                         this.soundInstances.put(definition, soundInstance);
                         soundManager.playNextTick(soundInstance);
@@ -94,10 +77,11 @@ public class AtmosphericSoundHandler {
 
     public MusicSound getMusicSound(MusicSound defaultSound) {
         MusicSound result = defaultSound;
-        ClientWorld world = MinecraftClient.getInstance().world;
+        MinecraftClient client = MinecraftClient.getInstance();
+        ClientWorld world = client.world;
 
-        if (world != null && MinecraftClient.getInstance().options.getSoundVolume(SoundCategory.MUSIC) > 0 && MinecraftClient.getInstance().player != null && world.atmosfera$isEnvironmentContextInitialized()) {
-            SoundManager soundManager = MinecraftClient.getInstance().getSoundManager();
+        if (world != null && client.options.getSoundVolume(SoundCategory.MUSIC) > 0 && client.player != null && world.atmosfera$isEnvironmentContextInitialized()) {
+            SoundManager soundManager = client.getSoundManager();
             int total = Objects.requireNonNull(soundManager.get(defaultSound.getSound().value().id())).getWeight();
 
             List<Pair<Integer, MusicSound>> sounds = new ArrayList<>();
