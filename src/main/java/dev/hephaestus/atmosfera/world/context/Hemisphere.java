@@ -14,19 +14,21 @@ import net.minecraft.world.biome.Biome;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 class Hemisphere implements EnvironmentContext {
     private final byte[][] offsets;
     private final Sphere sphere;
 
+    // TODO all of this is updated on one thread and read from another, leading to inconsistent state
     private final Map<Block, Integer> blockTypes = new ConcurrentHashMap<>();
     private final Map<Identifier, Integer> blockTags = new ConcurrentHashMap<>();
     private final Map<Biome, Integer> biomeTypes = new ConcurrentHashMap<>();
     private final Map<Identifier, Integer> biomeTags = new ConcurrentHashMap<>();
     private final Map<Biome.Category, Integer> biomeCategories = new ConcurrentHashMap<>();
 
-    private int blockCount = 0;
-    private int skyVisibility = 0;
+    private final AtomicInteger blockCount = new AtomicInteger();
+    private final AtomicInteger skyVisibility = new AtomicInteger();
 
     Hemisphere(byte[][] offsets, Sphere sphere) {
         this.sphere = sphere;
@@ -40,27 +42,27 @@ class Hemisphere implements EnvironmentContext {
 
     @Override
     public float getBlockTypePercentage(Block block) {
-        return this.blockTypes.getOrDefault(block, 0) / (float) this.blockCount;
+        return this.blockTypes.getOrDefault(block, 0) / (float) this.blockCount.get();
     }
 
     @Override
     public float getBlockTagPercentage(TagKey<Block> blocks) {
-        return this.blockTags.getOrDefault(blocks.id(), 0) / (float) this.blockCount;
+        return this.blockTags.getOrDefault(blocks.id(), 0) / (float) this.blockCount.get();
     }
 
     @Override
     public float getBiomePercentage(Biome biome) {
-        return this.biomeTypes.getOrDefault(biome, 0) / (float) this.blockCount;
+        return this.biomeTypes.getOrDefault(biome, 0) / (float) this.blockCount.get();
     }
 
     @Override
     public float getBiomeTagPercentage(TagKey<Biome> biomes) {
-        return this.biomeTags.getOrDefault(biomes.id(), 0) / (float) this.blockCount;
+        return this.biomeTags.getOrDefault(biomes.id(), 0) / (float) this.blockCount.get();
     }
 
     @Override
     public float getBiomeCategoryPercentage(Biome.Category biomes) {
-        return this.biomeCategories.getOrDefault(biomes, 0) / (float) this.blockCount;
+        return this.biomeCategories.getOrDefault(biomes, 0) / (float) this.blockCount.get();
     }
 
     @Override
@@ -75,7 +77,7 @@ class Hemisphere implements EnvironmentContext {
 
     @Override
     public float getSkyVisibility() {
-        return this.skyVisibility / (float) this.blockCount;
+        return this.skyVisibility.get() / (float) this.blockCount.get();
     }
 
     @Override
@@ -104,8 +106,8 @@ class Hemisphere implements EnvironmentContext {
     }
 
     private void clear() {
-        this.blockCount = 0;
-        this.skyVisibility = 0;
+        this.blockCount.set(0);
+        this.skyVisibility.set(0);
         this.blockTypes.replaceAll((block, integer) -> 0);
         this.blockTags.replaceAll((identifier, integer) -> 0);
         this.biomeTypes.replaceAll((biome, integer) -> 0);
@@ -128,19 +130,18 @@ class Hemisphere implements EnvironmentContext {
 
         this.biomeTypes.merge(biome, 1, Integer::sum);
         this.biomeCategories.merge(Biome.getCategory(biomeEntry), 1, Integer::sum);
-        this.skyVisibility += world.getLightLevel(LightType.SKY, pos) /  world.getMaxLightLevel();
-        this.blockCount++;
+        this.skyVisibility.addAndGet(world.getLightLevel(LightType.SKY, pos) / world.getMaxLightLevel());
+        this.blockCount.incrementAndGet();
     }
 
+    // runs on worker threads
     void update(BlockPos center) {
         this.clear();
 
         BlockPos.Mutable mut = new BlockPos.Mutable();
         World world = getPlayer().world;
 
-        for (int i = 0; i < this.offsets.length; ++i) {
-            byte[] a = this.offsets[i];
-
+        for (byte[] a : this.offsets) {
             mut.set(center.getX() + a[0], center.getY() + a[1], center.getZ() + a[2]);
             this.add(world, mut);
         }
