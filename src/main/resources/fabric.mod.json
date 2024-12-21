@@ -37,10 +37,10 @@
   ],
 
   "depends": {
-    "fabricloader": ">=0.14.6",
+    "minecraft": "${game_version_range}",
+    "fabricloader": "${loader_version_range}",
     "fabric": "*",
-    "cloth-config": "*",
-    "minecraft": ">=1.21.4"
+    "cloth-config": "*"
   },
   "recommends": {
     "modmenu": "*"
@@ -52,9 +52,6 @@
     "charmonium": "*",
     "mambience": "*",
     "primalwinter": "*"
-  },
-  "breaks": {
-    "modmenu": "<1.14.0"
   },
   "custom": {
     "loom:injected_interfaces": {
