@@ -10,7 +10,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import org.apache.logging.log4j.LogManager;
 
 import java.util.Collection;
 import java.util.Map;

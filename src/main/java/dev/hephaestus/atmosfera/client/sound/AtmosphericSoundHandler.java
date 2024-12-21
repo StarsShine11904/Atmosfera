@@ -49,10 +49,11 @@ public class AtmosphericSoundHandler {
     }
 
     public void tick() {
-        ClientWorld world = MinecraftClient.getInstance().world;
+        MinecraftClient client = MinecraftClient.getInstance();
+        ClientWorld world = client.world;
 
         if (world != null) {
-            SoundManager soundManager = MinecraftClient.getInstance().getSoundManager();
+            SoundManager soundManager = client.getSoundManager();
 
             world.atmosfera$updateEnvironmentContext();
 
@@ -61,7 +62,7 @@ public class AtmosphericSoundHandler {
                     float volume = definition.getVolume(world);
 
                     // The non-zero volume prevents the events getting triggered multiple times at volumes near zero.
-                    if (volume >= 0.0125 && MinecraftClient.getInstance().options.getSoundVolume(SoundCategory.AMBIENT) > 0) {
+                    if (volume >= 0.0125 && client.options.getSoundVolume(SoundCategory.AMBIENT) > 0) {
                         AtmosphericSoundInstance soundInstance = new AtmosphericSoundInstance(definition, 0.0001F);
                         this.soundInstances.put(definition, soundInstance);
                         soundManager.playNextTick(soundInstance);
@@ -76,10 +77,11 @@ public class AtmosphericSoundHandler {
 
     public MusicSound getMusicSound(MusicSound defaultSound) {
         MusicSound result = defaultSound;
-        ClientWorld world = MinecraftClient.getInstance().world;
+        MinecraftClient client = MinecraftClient.getInstance();
+        ClientWorld world = client.world;
 
-        if (world != null && MinecraftClient.getInstance().options.getSoundVolume(SoundCategory.MUSIC) > 0 && MinecraftClient.getInstance().player != null && world.atmosfera$isEnvironmentContextInitialized()) {
-            SoundManager soundManager = MinecraftClient.getInstance().getSoundManager();
+        if (world != null && client.options.getSoundVolume(SoundCategory.MUSIC) > 0 && client.player != null && world.atmosfera$isEnvironmentContextInitialized()) {
+            SoundManager soundManager = client.getSoundManager();
             int total = Objects.requireNonNull(soundManager.get(defaultSound.getSound().value().id())).getWeight();
 
             List<Pair<Integer, MusicSound>> sounds = new ArrayList<>();

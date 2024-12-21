@@ -4,7 +4,7 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Collection;
 
 abstract class AbstractEnvironmentContext implements EnvironmentContext {
     final ClientPlayerEntity player;

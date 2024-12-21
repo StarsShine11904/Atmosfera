@@ -16,7 +16,9 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.UUID;
 
 @Environment(EnvType.CLIENT)
 public class Sphere extends AbstractEnvironmentContext {
