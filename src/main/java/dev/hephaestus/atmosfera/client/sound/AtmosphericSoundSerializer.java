@@ -33,8 +33,6 @@ public record AtmosphericSoundSerializer(String sourceFolder, Map<Identifier, At
 
         Collection<Identifier> resources = manager.findResources(this.sourceFolder + "/definitions", (string) -> string.endsWith(".json"));
 
-        JsonParser parser = new JsonParser();
-
         for (Identifier resource : resources) {
             Identifier id = new Identifier(
                     resource.getNamespace(),
@@ -45,7 +43,7 @@ public record AtmosphericSoundSerializer(String sourceFolder, Map<Identifier, At
             );
 
             try {
-                JsonObject json = parser.parse(new InputStreamReader(manager.getResource(resource).getInputStream())).getAsJsonObject();
+                JsonObject json = JsonParser.parseReader(new InputStreamReader(manager.getResource(resource).getInputStream())).getAsJsonObject();
 
                 Identifier soundId = new Identifier(JsonHelper.getString(json, "sound"));
 
@@ -56,9 +54,8 @@ public record AtmosphericSoundSerializer(String sourceFolder, Map<Identifier, At
                 boolean showSubtitlesByDefault = getBoolean(json, "show_subtitles_by_default", true);
 
                 this.destination.put(id, new AtmosphericSoundDefinition(id, soundId, shape, size, defaultVolume, showSubtitlesByDefault, modifiers));
-            } catch (Exception exception) {
-                Atmosfera.error("Failed to load sound event '{}'", id);
-                exception.printStackTrace();
+            } catch (Exception e) {
+                Atmosfera.error("Failed to load sound event '{}'", id, e);
             }
         }
     }

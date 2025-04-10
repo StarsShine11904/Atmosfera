@@ -15,7 +15,8 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 
 public record PercentBiomeModifier(float min, float max, ImmutableCollection<RegistryEntry<Biome>> biomes, ImmutableCollection<TagKey<Biome>> biomeTags, ImmutableCollection<Biome.Category> biomeCategories) implements AtmosphericSoundModifier {
-    public PercentBiomeModifier(float min, float max, ImmutableCollection<RegistryEntry<Biome>> biomes, ImmutableCollection<TagKey<Biome>> biomeTags, ImmutableCollection<Biome.Category> biomeCategories) {
+    @SuppressWarnings("deprecation")
+	public PercentBiomeModifier(float min, float max, ImmutableCollection<RegistryEntry<Biome>> biomes, ImmutableCollection<TagKey<Biome>> biomeTags, ImmutableCollection<Biome.Category> biomeCategories) {
         ImmutableCollection.Builder<RegistryEntry<Biome>> biomesBuilder = ImmutableList.builder();
 
         // Remove biomes that are already present in tags so that they aren't counted twice
