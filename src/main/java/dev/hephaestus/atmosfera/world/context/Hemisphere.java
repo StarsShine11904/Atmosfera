@@ -108,6 +108,7 @@ class Hemisphere implements EnvironmentContext {
         this.blockTags.replaceAll((identifier, integer) -> 0);
     }
 
+    @SuppressWarnings("deprecation")
     private void add(World world, BlockPos pos) {
         Block block = world.getBlockState(pos).getBlock();
         this.blockTypes.merge(block, 1, Integer::sum);

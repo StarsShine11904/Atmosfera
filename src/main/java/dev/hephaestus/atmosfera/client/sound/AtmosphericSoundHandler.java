@@ -109,6 +109,7 @@ public class AtmosphericSoundHandler {
 
                 if (i <= 0) {
                     result = pair.getRight();
+                    break;
                 }
             }
 
