@@ -21,7 +21,6 @@ import dev.hephaestus.atmosfera.client.sound.AtmosphericSoundDefinition;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
-import me.shedaniel.clothconfig2.impl.builders.BooleanToggleBuilder;
 import me.shedaniel.clothconfig2.impl.builders.SubCategoryBuilder;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.screen.Screen;
@@ -42,18 +41,26 @@ public class AtmosferaConfig {
 	private static final TreeMap<Identifier, Integer> VOLUME_MODIFIERS = new TreeMap<>(Comparator.comparing(id -> I18n.translate(id.toString())));
 	private static final TreeMap<Identifier, Boolean> SUBTITLE_MODIFIERS = new TreeMap<>(Comparator.comparing(id -> I18n.translate(id.toString())));
 	private static final TreeMap<Identifier, Integer> MUSIC_WEIGHTS = new TreeMap<>(Comparator.comparing(id -> I18n.translate(id.toString())));
-	private static boolean PRINT_DEBUG_MESSAGES = false;
+	private static boolean printDebugMessages = false;
+	private static boolean enableCustomMusic = true;
 
 	static {
 		read();
 	}
 
 	private static void read() {
-		try {
-			InputStream fi = new FileInputStream("config" + File.separator + "atmosfera.json");
+		try (InputStream fi = new FileInputStream("config" + File.separator + "atmosfera.json")) {
 			JsonParser jsonParser = new JsonParser();
 
 			JsonObject json = (JsonObject)jsonParser.parse(new InputStreamReader(fi));
+
+			if (json.has("general")) {
+				JsonObject general = json.getAsJsonObject("general");
+
+				if (general.has("enable_custom_music")) {
+					enableCustomMusic = general.get("enable_custom_music").getAsBoolean();
+				}
+			}
 
 			if (json.has("volumes")) {
 				for (Map.Entry<String, JsonElement> element : json.get("volumes").getAsJsonObject().entrySet()) {
@@ -75,11 +82,9 @@ public class AtmosferaConfig {
 				JsonObject debug = json.getAsJsonObject("debug");
 
 				if (debug.has("print_debug_messages")) {
-					PRINT_DEBUG_MESSAGES = debug.get("print_debug_messages").getAsBoolean();
+					printDebugMessages = debug.get("print_debug_messages").getAsBoolean();
 				}
 			}
-
-			fi.close();
 		} catch (FileNotFoundException e) {
 			Atmosfera.log("The user config file was not found. Creating the default config...");
 		} catch (IOException e) {
@@ -101,21 +106,22 @@ public class AtmosferaConfig {
 	private static void write() {
 		File configFile = new File("config" + File.separator + "atmosfera.json");
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		try {
-			BufferedWriter writer = new BufferedWriter(new FileWriter(configFile));
-
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(configFile))) {
 			JsonObject jsonObject = new JsonObject();
+
+			JsonObject general = new JsonObject();
+			general.addProperty("enable_custom_music", enableCustomMusic);
+
+			jsonObject.add("general", general);
 			jsonObject.add("volumes", gson.toJsonTree(VOLUME_MODIFIERS));
 			jsonObject.add("subtitles", gson.toJsonTree(SUBTITLE_MODIFIERS));
 
 			JsonObject debug = new JsonObject();
-
-			debug.addProperty("print_debug_messages", PRINT_DEBUG_MESSAGES);
+			debug.addProperty("print_debug_messages", printDebugMessages);
 
 			jsonObject.add("debug", debug);
 
 			writer.write(gson.toJson(jsonObject));
-			writer.close();
 		} catch (IOException e) {
 			Atmosfera.warn("Failed to save the config to the file.");
 		}
@@ -150,28 +156,38 @@ public class AtmosferaConfig {
 
 		ConfigBuilder builder = ConfigBuilder.create().setTitle(Text.literal(Atmosfera.MOD_NAME));
 		builder.setParentScreen(parent);
+		builder.setDefaultBackgroundTexture(Identifier.of("minecraft:textures/block/light_blue_stained_glass.png"));
+		ConfigEntryBuilder entryBuilder = builder.entryBuilder()
+				.setResetButtonKey(Text.translatable("text.cloth-config.reset_value"));
 
+		ConfigCategory generalCategory = builder.getOrCreateCategory(Text.translatable("config.category.atmosfera.general"));
 		ConfigCategory volumesCategory = builder.getOrCreateCategory(Text.translatable("config.category.atmosfera.volumes"));
 		ConfigCategory subtitlesCategory = builder.getOrCreateCategory(Text.translatable("config.category.atmosfera.subtitles"));
 
 		if (IS_DEVELOPMENT_ENVIRONMENT) {
 			ConfigCategory debugCategory = builder.getOrCreateCategory(Text.translatable("config.category.atmosfera.debug"));
-			debugCategory.addEntry(new BooleanToggleBuilder(
-					Text.translatable("text.cloth-config.reset_value"), Text.translatable("config.value.atmosfera.print_debug_messages"), false)
-					.setSaveConsumer(b -> PRINT_DEBUG_MESSAGES = b)
+			debugCategory.addEntry(entryBuilder
+					.startBooleanToggle(Text.translatable("config.value.atmosfera.print_debug_messages"), printDebugMessages)
+					.setSaveConsumer(b -> printDebugMessages = b)
+					.setDefaultValue(false)
 					.build()
 			);
 		}
 
-		SubCategoryBuilder soundSubcategory = new SubCategoryBuilder(
-				Text.translatable("text.cloth-config.reset_value"), Text.translatable("config.subcategory.atmosfera.ambient_sound"))
+		SubCategoryBuilder soundSubcategory = entryBuilder
+				.startSubCategory(Text.translatable("config.subcategory.atmosfera.ambient_sound"))
 				.setExpanded(true);
-		SubCategoryBuilder musicSubcategory = new SubCategoryBuilder(
-				Text.translatable("text.cloth-config.reset_value"), Text.translatable("config.subcategory.atmosfera.music"))
+		SubCategoryBuilder musicSubcategory = entryBuilder
+				.startSubCategory(Text.translatable("config.subcategory.atmosfera.music"))
 				.setExpanded(true);
 
-		builder.setDefaultBackgroundTexture(Identifier.of("minecraft:textures/block/light_blue_stained_glass.png"));
-		ConfigEntryBuilder entryBuilder = builder.entryBuilder();
+		generalCategory.addEntry(
+				entryBuilder.startBooleanToggle(Text.translatable("config.value.atmosfera.enable_custom_music"), enableCustomMusic)
+						.setTooltip(Text.translatable("config.value.atmosfera.enable_custom_music.@Tooltip"))
+						.setSaveConsumer(b -> enableCustomMusic = b)
+						.setDefaultValue(true)
+						.build()
+		);
 
 		for (Map.Entry<Identifier, Integer> sound : VOLUME_MODIFIERS.entrySet()) {
 			Map<Identifier, AtmosphericSoundDefinition> soundType;
@@ -248,6 +264,10 @@ public class AtmosferaConfig {
 	}
 
 	public static boolean printDebugMessages() {
-		return PRINT_DEBUG_MESSAGES && IS_DEVELOPMENT_ENVIRONMENT;
+		return printDebugMessages && IS_DEVELOPMENT_ENVIRONMENT;
+	}
+
+	public static boolean enableCustomMusic() {
+		return enableCustomMusic;
 	}
 }

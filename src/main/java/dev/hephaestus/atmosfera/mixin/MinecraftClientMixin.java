@@ -17,6 +17,7 @@
 package dev.hephaestus.atmosfera.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import dev.hephaestus.atmosfera.AtmosferaConfig;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -36,6 +37,9 @@ public class MinecraftClientMixin {
 
 	@ModifyReturnValue(method = "getMusicInstance", at = @At("RETURN"))
 	private MusicInstance atmosfera$getAmbientMusic(MusicInstance original) {
+		if (!AtmosferaConfig.enableCustomMusic())
+			return original;
+
 		MusicSound sound = original.music();
 		float volume = original.volume();
 
