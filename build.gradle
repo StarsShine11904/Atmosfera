@@ -1,9 +1,11 @@
 plugins {
-    id 'fabric-loom' version '1.9-SNAPSHOT'
+    id 'fabric-loom' version '1.10-SNAPSHOT'
     id 'maven-publish'
+    id 'com.matthewprenger.cursegradle' version '1.4.0'
+    id 'com.modrinth.minotaur' version '2.+'
 }
 
-version = project.mod_version
+version = project.mod_version + '+mc' + project.minecraft_version
 group = project.maven_group
 
 base {
@@ -39,31 +41,32 @@ dependencies {
 }
 
 processResources {
-    inputs.property "version", project.version
+    def stringProperties = project.properties.findAll { it.value instanceof String }
 
-    filesMatching("fabric.mod.json") {
-        expand "version": project.version
+    inputs.properties(stringProperties)
+
+    filesMatching(["*.mixins.json", "*.mod.json", "**/pack.mcmeta"]) {
+        expand(stringProperties) {
+            escapeBackslash = true
+        }
     }
 }
 
 tasks.withType(JavaCompile).configureEach {
     it.options.compilerArgs.add('-Xlint:deprecation')
-    it.options.release = 21
+    it.options.release = project.java_version as Integer
 }
 
 java {
-    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-    // if it is present.
-    // If you remove this line, sources will not be generated.
+    targetCompatibility = sourceCompatibility = project.java_version as Integer
     withSourcesJar()
-
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
 }
 
 jar {
+    inputs.property "archivesName", project.base.archivesName
+
     from("LICENSE") {
-        rename { "${it}_${project.base.archivesName.get()}"}
+        rename { "${it}_${inputs.properties.archivesName}" }
     }
 }
 
@@ -82,4 +85,78 @@ publishing {
         // The repositories here will be used for publishing your artifact, not for
         // retrieving dependencies.
     }
+}
+
+def changesMd = file('changes.md').getText('UTF-8')
+def toList = (String s) -> s.split(',').collect { it.trim() }
+def gameVersionList = toList(project.game_version_list)
+
+modrinth {
+    def MODRINTH_TOKEN = System.getenv('MODRINTH_TOKEN')
+    if (MODRINTH_TOKEN != null) {
+        token = MODRINTH_TOKEN
+        projectId = project.modrinth_id
+        versionName = project.version
+        versionNumber = project.version
+        versionType = 'release'
+        uploadFile = remapJar
+        changelog = changesMd
+        gameVersions = gameVersionList
+        loaders = ['fabric']
+        dependencies {
+            toList(project.modrinth_dependencies).each { required.project(it) }
+            toList(project.modrinth_optional_dependencies).each { optional.project(it) }
+        }
+    }
+}
+
+tasks.modrinth.dependsOn("build")
+
+curseforge {
+    def CURSEFORGE_TOKEN = System.getenv('CURSEFORGE_TOKEN')
+    if (CURSEFORGE_TOKEN != null) {
+        apiKey = CURSEFORGE_TOKEN
+        project {
+            id = project.curseforge_id
+            releaseType = 'release'
+            changelogType = 'markdown'
+            changelog = changesMd
+
+            addGameVersion 'Fabric'
+            gameVersionList.each { addGameVersion(it) }
+
+            relations {
+                toList(project.curseforge_dependencies).each { requiredDependency(it) }
+                toList(project.curseforge_optional_dependencies).each { optionalDependency(it) }
+            }
+            mainArtifact(remapJar.archiveFile.get().asFile) {
+                displayName = "${project.mod_version} [${versionRange(gameVersionList)}]"
+            }
+            afterEvaluate {
+                uploadTask.dependsOn('build')
+            }
+        }
+        options {
+            forgeGradleIntegration = false
+            javaVersionAutoDetect = false
+        }
+    }
+}
+
+static String versionRange(List<String> gameVersions) {
+    if (gameVersions.size() == 1)
+        return gameVersions[0]
+
+    def v0 = gameVersions.first()
+    def v1 = gameVersions.last()
+
+    def s0 = v0.split('[.]').collect { it as Integer }
+    def s1 = v1.split('[.]').collect { it as Integer }
+
+    // e.g. 1.19.3, 1.19.4 -> 1.19.3/4
+    if (s0.size() == 3 && s1.size() == 3 && s0[0] == s1[0] && s0[1] == s1[1] && s1[2] - s0[2] == 1) {
+        return "${s1[0]}.${s1[1]}.${s0[2]}/${s1[2]}"
+    }
+
+    return "${v0} - ${v1}"
 }
