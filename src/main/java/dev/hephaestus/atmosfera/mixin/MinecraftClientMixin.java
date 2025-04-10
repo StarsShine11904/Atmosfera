@@ -17,6 +17,7 @@
 package dev.hephaestus.atmosfera.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import dev.hephaestus.atmosfera.AtmosferaConfig;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -34,11 +35,14 @@ public class MinecraftClientMixin {
 	@Shadow @Nullable public ClientWorld world;
 
 	@ModifyReturnValue(method = "getMusicType", at = @At("RETURN"))
-	private MusicSound atmosfera$getAmbientMusicType(MusicSound sound) {
-		if (sound != MusicType.MENU && sound != MusicType.CREDITS && this.world != null) {
-			return this.world.atmosfera$getAtmosphericSoundHandler().getMusicSound(sound);
+	private MusicSound atmosfera$getAmbientMusicType(MusicSound original) {
+		if (!AtmosferaConfig.enableCustomMusic())
+			return original;
+
+		if (original != MusicType.MENU && original != MusicType.CREDITS && this.world != null) {
+			return this.world.atmosfera$getAtmosphericSoundHandler().getMusicSound(original);
 		}
 
-		return sound;
+		return original;
 	}
 }
