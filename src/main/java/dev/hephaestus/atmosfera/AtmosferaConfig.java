@@ -50,9 +50,7 @@ public class AtmosferaConfig {
 
 	private static void read() {
 		try (InputStream fi = new FileInputStream("config" + File.separator + "atmosfera.json")) {
-			JsonParser jsonParser = new JsonParser();
-
-			JsonObject json = (JsonObject)jsonParser.parse(new InputStreamReader(fi));
+			JsonObject json = (JsonObject) JsonParser.parseReader(new InputStreamReader(fi));
 
 			if (json.has("general")) {
 				JsonObject general = json.getAsJsonObject("general");
