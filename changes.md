@@ -1,3 +1,9 @@
-- [1.21.4] add `null` check for music, fixing a potential crash
-- fix a bunch of concurrency issues, including a rare `ConcurrentModificationException` crash when playing sound
-- replace thread pool of 4+ threads with two dedicated single-thread pools that discard old update tasks
+- a *massive* tiny bug fix for the way music is chosen
+
+Atmosfera would previously always choose the last set of music from the available list, which means it would always use the same Dungeons music and never play vanilla music in certain biomes, among having no variety.
+
+(This has been an issue for almost 4 years now... 🤯)
+
+- add config option to disable all custom music
+
+Note: specific music pieces can be disabled by setting their volume to 0
