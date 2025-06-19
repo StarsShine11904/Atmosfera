@@ -82,7 +82,7 @@ public class AtmosphericSoundHandler {
 
         if (world != null && client.options.getSoundVolume(SoundCategory.MUSIC) > 0 && client.player != null && world.atmosfera$isEnvironmentContextInitialized()) {
             SoundManager soundManager = client.getSoundManager();
-            int total = Objects.requireNonNull(soundManager.get(defaultSound.getSound().value().id())).getWeight();
+            int total = Objects.requireNonNull(soundManager.get(defaultSound.sound().value().id())).getWeight();
 
             List<Pair<Integer, MusicSound>> sounds = new ArrayList<>();
             sounds.add(new Pair<>(total, defaultSound));
