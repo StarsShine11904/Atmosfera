@@ -2,7 +2,6 @@ package dev.hephaestus.atmosfera.mixin;
 
 import dev.hephaestus.atmosfera.client.sound.AtmosphericSoundHandler;
 import dev.hephaestus.atmosfera.client.sound.util.ClientWorldDuck;
-import dev.hephaestus.atmosfera.world.context.ContextUtil;
 import dev.hephaestus.atmosfera.world.context.EnvironmentContext;
 import dev.hephaestus.atmosfera.world.context.Sphere;
 import net.minecraft.client.MinecraftClient;
