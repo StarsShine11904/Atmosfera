@@ -1,6 +1,7 @@
 {
   "pack": {
-    "pack_format": ${pack_format},
+    "min_format": 69,
+    "max_format": 420000,
     "description": "Sounds from Dungeons"
   }
 }

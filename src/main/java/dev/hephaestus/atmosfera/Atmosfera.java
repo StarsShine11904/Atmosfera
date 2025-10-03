@@ -22,6 +22,7 @@ import dev.hephaestus.atmosfera.world.context.EnvironmentContext;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
+import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
@@ -63,10 +64,11 @@ public class Atmosfera implements ClientModInitializer {
 		FabricLoader.getInstance().getModContainer(MODID).ifPresent(modContainer -> {
 			ResourceManagerHelper.registerBuiltinResourcePack(id("dungeons"), modContainer, ResourcePackActivationType.DEFAULT_ENABLED);
 
-			ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(
-					new AtmosphericSoundSerializer("sounds/ambient", SOUND_DEFINITIONS));
-			ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(
-					new AtmosphericSoundSerializer("sounds/music", MUSIC_DEFINITIONS));
+			var resourceLoader = ResourceLoader.get(ResourceType.CLIENT_RESOURCES);
+			var soundSerializer = new AtmosphericSoundSerializer("sounds/ambient", SOUND_DEFINITIONS);
+			var musicSerializer = new AtmosphericSoundSerializer("sounds/music", MUSIC_DEFINITIONS);
+			resourceLoader.registerReloader(soundSerializer.getFabricId(), soundSerializer);
+			resourceLoader.registerReloader(musicSerializer.getFabricId(), musicSerializer);
 		});
 
 		EnvironmentContext.init();

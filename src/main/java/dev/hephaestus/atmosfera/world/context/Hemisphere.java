@@ -132,7 +132,7 @@ class Hemisphere implements EnvironmentContext {
         this.clear();
 
         BlockPos.Mutable mut = new BlockPos.Mutable();
-        World world = getPlayer().getWorld();
+        World world = getPlayer().getEntityWorld();
 
         for (byte[] a : this.offsets) {
             mut.set(center.getX() + a[0], center.getY() + a[1], center.getZ() + a[2]);

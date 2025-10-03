@@ -9,9 +9,9 @@ import dev.hephaestus.atmosfera.Atmosfera;
 import dev.hephaestus.atmosfera.client.sound.modifiers.AtmosphericSoundModifier;
 import dev.hephaestus.atmosfera.client.sound.modifiers.implementations.ConfigModifier;
 import dev.hephaestus.atmosfera.world.context.EnvironmentContext;
-import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
+import net.minecraft.resource.SynchronousResourceReloader;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 
@@ -19,8 +19,7 @@ import java.io.InputStreamReader;
 import java.util.Locale;
 import java.util.Map;
 
-public record AtmosphericSoundSerializer(String sourceFolder, Map<Identifier, AtmosphericSoundDefinition> destination) implements SimpleSynchronousResourceReloadListener {
-    @Override
+public record AtmosphericSoundSerializer(String sourceFolder, Map<Identifier, AtmosphericSoundDefinition> destination) implements SynchronousResourceReloader {
     public Identifier getFabricId() {
         return Atmosfera.id(this.sourceFolder);
     }
