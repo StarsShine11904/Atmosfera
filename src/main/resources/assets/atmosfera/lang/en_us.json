@@ -5,6 +5,7 @@
   "config.category.atmosfera.subtitles": "Subtitles",
   "config.subcategory.atmosfera.ambient_sound": "Ambient Sound",
   "config.subcategory.atmosfera.music": "Music",
+  "config.value.atmosfera.sound_tip.@Tooltip": "Set to 0% to disable",
   "config.value.atmosfera.enable_custom_music": "Enable Custom Music",
   "config.value.atmosfera.custom_music_weight_scale": "Custom Music Weight Scale",
   "config.value.atmosfera.custom_music_weight_scale_explanation": "\"Weight\"? \"Weight Scale\"?",

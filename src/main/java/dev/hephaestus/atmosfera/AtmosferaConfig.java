@@ -207,13 +207,15 @@ public class AtmosferaConfig {
 					// Replaces the "colon" with a "dot" as the ID separator to utilize the language file.
 					String soundLangID = String.join(".", sound.getKey().toString().split(":"));
 
-					MutableText tooltipText = Text.literal(soundLangID + "\n");
-					tooltipText.append(Text.translatable("subtitle." + soundLangID));
+					MutableText tooltip = Text.literal(soundLangID + "\n");
+					tooltip.append(Text.translatable("subtitle." + soundLangID));
+					tooltip.append("\n");
+					tooltip.append(Text.translatable("config.value.atmosfera.sound_tip.@Tooltip"));
 
 					soundSubcategory.add(
 							entryBuilder.startIntSlider(Text.translatable(soundLangID), sound.getValue(), 0, 200)
 									.setDefaultValue(soundType.get(sound.getKey()).defaultVolume())
-									.setTooltip(tooltipText.formatted(Formatting.GRAY))
+									.setTooltip(tooltip.formatted(Formatting.GRAY))
 									.setTextGetter(integer -> Text.literal(integer + "%"))
 									.setSaveConsumer(volume -> VOLUME_MODIFIERS.put(sound.getKey(), volume))
 									.build()
@@ -224,10 +226,14 @@ public class AtmosferaConfig {
 				if (soundType.containsKey(sound.getKey())) {
 					String soundLangID = String.join(".", sound.getKey().toString().split(":"));
 
+					MutableText tooltip = Text.literal(soundLangID);
+					tooltip.append("\n");
+					tooltip.append(Text.translatable("config.value.atmosfera.sound_tip.@Tooltip"));
+
 					musicSubcategory.add(
 							entryBuilder.startIntSlider(Text.translatable(soundLangID), sound.getValue(), 0, 200)
 									.setDefaultValue(soundType.get(sound.getKey()).defaultVolume())
-									.setTooltip(Text.literal(soundLangID).formatted(Formatting.GRAY))
+									.setTooltip(tooltip.formatted(Formatting.GRAY))
 									.setTextGetter(integer -> Text.literal(integer + "%"))
 									.setSaveConsumer(volume -> VOLUME_MODIFIERS.put(sound.getKey(), volume))
 									.build()
