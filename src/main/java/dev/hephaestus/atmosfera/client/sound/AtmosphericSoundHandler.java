@@ -98,7 +98,7 @@ public class AtmosphericSoundHandler {
                         return MusicType.createIngameMusic(RegistryEntry.of(SoundEvent.of(definition.soundId())));
                     })));
 
-                    total += 5 * volume;
+                    total += weight;
                 }
             }
 
