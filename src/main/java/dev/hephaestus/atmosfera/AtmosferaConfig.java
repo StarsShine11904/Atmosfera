@@ -36,13 +36,11 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class AtmosferaConfig {
-	private static final boolean IS_DEVELOPMENT_ENVIRONMENT = FabricLoader.getInstance().isDevelopmentEnvironment();
-
 	private static final TreeMap<Identifier, Integer> VOLUME_MODIFIERS = new TreeMap<>(Comparator.comparing(id -> I18n.translate(id.toString())));
 	private static final TreeMap<Identifier, Boolean> SUBTITLE_MODIFIERS = new TreeMap<>(Comparator.comparing(id -> I18n.translate(id.toString())));
-	private static final TreeMap<Identifier, Integer> MUSIC_WEIGHTS = new TreeMap<>(Comparator.comparing(id -> I18n.translate(id.toString())));
 	private static boolean printDebugMessages = false;
 	private static boolean enableCustomMusic = true;
+	private static float customMusicWeightScale = 2.5f;
 
 	static {
 		read();
@@ -57,6 +55,10 @@ public class AtmosferaConfig {
 
 				if (general.has("enable_custom_music")) {
 					enableCustomMusic = general.get("enable_custom_music").getAsBoolean();
+				}
+
+				if (general.has("custom_music_weight_scale")) {
+					customMusicWeightScale = general.get("custom_music_weight_scale").getAsFloat();
 				}
 			}
 
@@ -109,6 +111,7 @@ public class AtmosferaConfig {
 
 			JsonObject general = new JsonObject();
 			general.addProperty("enable_custom_music", enableCustomMusic);
+			general.addProperty("custom_music_weight_scale", customMusicWeightScale);
 
 			jsonObject.add("general", general);
 			jsonObject.add("volumes", gson.toJsonTree(VOLUME_MODIFIERS));
@@ -140,15 +143,6 @@ public class AtmosferaConfig {
 		return SUBTITLE_MODIFIERS.getOrDefault(soundId, Atmosfera.SOUND_DEFINITIONS.get(soundId).hasSubtitleByDefault());
 	}
 
-	public static int weight(Identifier musicId) {
-		return MUSIC_WEIGHTS.getOrDefault(musicId, 5);
-	}
-
-	public static void refreshConfig() {
-		Atmosfera.warn("Refreshing the user config...");
-		read();
-	}
-
 	public static Screen getScreen(Screen parent) {
 		read();
 
@@ -162,7 +156,7 @@ public class AtmosferaConfig {
 		ConfigCategory volumesCategory = builder.getOrCreateCategory(Text.translatable("config.category.atmosfera.volumes"));
 		ConfigCategory subtitlesCategory = builder.getOrCreateCategory(Text.translatable("config.category.atmosfera.subtitles"));
 
-		if (IS_DEVELOPMENT_ENVIRONMENT) {
+		if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
 			ConfigCategory debugCategory = builder.getOrCreateCategory(Text.translatable("config.category.atmosfera.debug"));
 			debugCategory.addEntry(entryBuilder
 					.startBooleanToggle(Text.translatable("config.value.atmosfera.print_debug_messages"), printDebugMessages)
@@ -184,6 +178,20 @@ public class AtmosferaConfig {
 						.setTooltip(Text.translatable("config.value.atmosfera.enable_custom_music.@Tooltip"))
 						.setSaveConsumer(b -> enableCustomMusic = b)
 						.setDefaultValue(true)
+						.build()
+		);
+
+		generalCategory.addEntry(
+				entryBuilder.startLongSlider(Text.translatable("config.value.atmosfera.custom_music_weight_scale"), (long)(customMusicWeightScale * 100), 1, 1000)
+						.setSaveConsumer(v -> customMusicWeightScale = v / 100f)
+						.setTextGetter(v -> Text.literal(v + "%"))
+						.setDefaultValue(250)
+						.build()
+		);
+
+		generalCategory.addEntry(
+				entryBuilder.startTextDescription(Text.translatable("config.value.atmosfera.custom_music_weight_scale_explanation"))
+						.setTooltip(Text.translatable("config.value.atmosfera.custom_music_weight_scale_explanation.@Tooltip"))
 						.build()
 		);
 
@@ -262,10 +270,14 @@ public class AtmosferaConfig {
 	}
 
 	public static boolean printDebugMessages() {
-		return printDebugMessages && IS_DEVELOPMENT_ENVIRONMENT;
+		return printDebugMessages;
 	}
 
 	public static boolean enableCustomMusic() {
 		return enableCustomMusic;
+	}
+
+	public static float customMusicWeightScale() {
+		return customMusicWeightScale;
 	}
 }

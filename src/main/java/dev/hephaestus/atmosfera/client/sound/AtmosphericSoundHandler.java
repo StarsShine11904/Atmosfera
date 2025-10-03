@@ -3,6 +3,7 @@ package dev.hephaestus.atmosfera.client.sound;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import dev.hephaestus.atmosfera.Atmosfera;
+import dev.hephaestus.atmosfera.AtmosferaConfig;
 import dev.hephaestus.atmosfera.client.sound.modifiers.AtmosphericSoundModifier;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.sound.SoundManager;
@@ -76,22 +77,21 @@ public class AtmosphericSoundHandler {
     }
 
     public MusicSound getMusicSound(MusicSound defaultSound) {
-        MusicSound result = defaultSound;
         MinecraftClient client = MinecraftClient.getInstance();
         ClientWorld world = client.world;
 
         if (world != null && client.options.getSoundVolume(SoundCategory.MUSIC) > 0 && client.player != null && world.atmosfera$isEnvironmentContextInitialized()) {
             SoundManager soundManager = client.getSoundManager();
-            int total = Objects.requireNonNull(soundManager.get(defaultSound.sound().value().id())).getWeight();
+            float total = Objects.requireNonNull(soundManager.get(defaultSound.sound().value().id())).getWeight();
 
-            List<Pair<Integer, MusicSound>> sounds = new ArrayList<>();
+            List<Pair<Float, MusicSound>> sounds = new ArrayList<>();
             sounds.add(new Pair<>(total, defaultSound));
 
             for (AtmosphericSound definition : this.musics) {
                 float volume = definition.getVolume(world);
 
                 if (volume > 0.0125) {
-                    int weight = Objects.requireNonNull(soundManager.get(definition.soundId())).getWeight();
+                    float weight = AtmosferaConfig.customMusicWeightScale() * Objects.requireNonNull(soundManager.get(definition.soundId())).getWeight();
 
                     sounds.add(new Pair<>(weight, MUSIC.computeIfAbsent(definition, id -> {
                         Atmosfera.debug("createIngameMusic: {}", definition.id());
@@ -102,21 +102,19 @@ public class AtmosphericSoundHandler {
                 }
             }
 
+            float i = total <= 0 ? 0 : RANDOM.nextFloat() * total;
 
-            int i = total <= 0 ? 0 : RANDOM.nextInt(total);
-
-            for (Pair<Integer, MusicSound> pair : sounds) {
+            for (Pair<Float, MusicSound> pair : sounds) {
                 i -= pair.getLeft();
 
-                if (i < 0) {
-                    result = pair.getRight();
-                    break;
-                }
+                if (i < 0)
+                    return pair.getRight();
             }
 
-            sounds.clear();
+            // due to float imprecision, i might not have fallen below 0, count this towards the last element
+            return sounds.getLast().getRight();
         }
 
-        return result;
+        return defaultSound;
     }
 }
