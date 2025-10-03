@@ -108,7 +108,7 @@ public class AtmosphericSoundHandler {
             for (Pair<Integer, MusicSound> pair : sounds) {
                 i -= pair.getLeft();
 
-                if (i <= 0) {
+                if (i < 0) {
                     result = pair.getRight();
                     break;
                 }
