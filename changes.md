@@ -1,9 +1,7 @@
-- a *massive* tiny bug fix for the way music is chosen
+- fix another 2 bugs in how music was chosen - these should be the last!
 
-Atmosfera would previously always choose the last set of music from the available list, which means it would always use the same Dungeons music and never play vanilla music in certain biomes, among having no variety.
+the bugs resulted in custom music being less likely to play than intended and some custom tracks being skipped
 
-(This has been an issue for almost 4 years now... 🤯)
+- add a "Custom Music Weight Scale" option, to tune the likelihood of playing custom music
 
-- add config option to disable all custom music
-
-Note: specific music pieces can be disabled by setting their volume to 0
+this is by default set to 250% as custom music was very rare to play, since there's so little of it
