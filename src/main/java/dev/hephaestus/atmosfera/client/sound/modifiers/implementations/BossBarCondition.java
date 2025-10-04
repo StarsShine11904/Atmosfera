@@ -27,9 +27,9 @@ public record BossBarCondition(String text, boolean isRegex) implements Atmosphe
     }
 
     public static Factory create(JsonObject object) {
-        if(object.has("matches")) {
+        if (object.has("matches")) {
             return new BossBarCondition(object.get("matches").getAsString(), true);
-        } else if(object.has("text")) {
+        } else if (object.has("text")) {
             return new BossBarCondition(object.get("text").getAsString(), false);
         } else {
             throw new RuntimeException("Modifier for 'boss_bar' is missing 'matches' or 'text' field.");

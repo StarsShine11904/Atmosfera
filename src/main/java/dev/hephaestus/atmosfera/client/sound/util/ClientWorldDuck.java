@@ -12,7 +12,7 @@ public interface ClientWorldDuck {
         return null;
     }
 
-    default void atmosfera$updateEnvironmentContext() { }
+    default void atmosfera$updateEnvironmentContext() {}
 
     default boolean atmosfera$isEnvironmentContextInitialized() {
         return false;

@@ -18,7 +18,7 @@ public record SimpleBoundedCondition(float min, float max, Function<EnvironmentC
     }
 
     @Override
-    public final AtmosphericSoundModifier create(World world) {
+    public AtmosphericSoundModifier create(World world) {
         return this;
     }
 
