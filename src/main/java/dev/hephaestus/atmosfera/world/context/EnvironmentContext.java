@@ -58,6 +58,7 @@ public interface EnvironmentContext {
         LARGE((byte) 16);
 
         public final byte radius;
+
         Size(byte radius) {
             this.radius = radius;
         }
