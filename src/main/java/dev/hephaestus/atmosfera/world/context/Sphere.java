@@ -76,7 +76,7 @@ public class Sphere extends AbstractEnvironmentContext {
             BossBarHud bossBarHud = MinecraftClient.getInstance().inGameHud.getBossBarHud();
             Map<UUID, ClientBossBar> bossBarMap = ((BossBarHudAccessor) bossBarHud).getBossBars();
 
-            for(BossBar bossBar : bossBarMap.values()) {
+            for (BossBar bossBar : bossBarMap.values()) {
                 String value = bossBar.getName().getContent() instanceof TranslatableTextContent translatable ? translatable.getKey() : bossBar.getName().toString();
                 this.bossBars.add(value);
             }
