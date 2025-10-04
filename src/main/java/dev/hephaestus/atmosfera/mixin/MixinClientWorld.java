@@ -2,7 +2,9 @@ package dev.hephaestus.atmosfera.mixin;
 
 import dev.hephaestus.atmosfera.client.sound.AtmosphericSoundHandler;
 import dev.hephaestus.atmosfera.client.sound.util.ClientWorldDuck;
+import dev.hephaestus.atmosfera.world.context.ContextUtil;
 import dev.hephaestus.atmosfera.world.context.EnvironmentContext;
+import dev.hephaestus.atmosfera.world.context.EnvironmentContext.Size;
 import dev.hephaestus.atmosfera.world.context.Sphere;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -18,14 +20,15 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.function.BooleanSupplier;
 
 @Mixin(ClientWorld.class)
 public class MixinClientWorld implements ClientWorldDuck {
     private AtmosphericSoundHandler atmosfera$soundHandler;
-    private HashMap<EnvironmentContext.Size, Sphere> atmosfera$environmentContexts;
+    private EnumMap<Size, Sphere> atmosfera$environmentContexts;
     private boolean atmosfera$initialized;
+    private int atmosfera$updateTimer = 0;
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void initializeSoundHandler(ClientPlayNetworkHandler networkHandler, ClientWorld.Properties properties, RegistryKey<World> registryRef, RegistryEntry<DimensionType> dimensionType, int loadDistance, int simulationDistance, WorldRenderer worldRenderer, boolean debugWorld, long seed, int seaLevel, CallbackInfo ci) {
@@ -43,8 +46,8 @@ public class MixinClientWorld implements ClientWorldDuck {
     }
 
     @Override
-    public EnvironmentContext atmosfera$getEnvironmentContext(EnvironmentContext.Size size, EnvironmentContext.Shape shape) {
-        if(!atmosfera$isEnvironmentContextInitialized()) return null;
+    public EnvironmentContext atmosfera$getEnvironmentContext(Size size, EnvironmentContext.Shape shape) {
+        if (!atmosfera$isEnvironmentContextInitialized()) return null;
         return switch (shape) {
             case UPPER_HEMISPHERE -> this.atmosfera$environmentContexts.get(size).getUpperHemisphere();
             case LOWER_HEMISPHERE -> this.atmosfera$environmentContexts.get(size).getLowerHemisphere();
@@ -54,18 +57,21 @@ public class MixinClientWorld implements ClientWorldDuck {
 
     @Override
     public void atmosfera$updateEnvironmentContext() {
-        if(!this.atmosfera$initialized) {
+        if (!this.atmosfera$initialized) {
             ClientPlayerEntity player = MinecraftClient.getInstance().player;
-            this.atmosfera$environmentContexts = new HashMap<>();
-            this.atmosfera$environmentContexts.put(EnvironmentContext.Size.SMALL, new Sphere(EnvironmentContext.Size.SMALL, player));
-            this.atmosfera$environmentContexts.put(EnvironmentContext.Size.MEDIUM, new Sphere(EnvironmentContext.Size.MEDIUM, player));
-            this.atmosfera$environmentContexts.put(EnvironmentContext.Size.LARGE, new Sphere(EnvironmentContext.Size.LARGE, player));
+            this.atmosfera$environmentContexts = new EnumMap<>(Size.class);
+            this.atmosfera$environmentContexts.put(Size.SMALL,  new Sphere(Size.SMALL,  player));
+            this.atmosfera$environmentContexts.put(Size.MEDIUM, new Sphere(Size.MEDIUM, player));
+            this.atmosfera$environmentContexts.put(Size.LARGE,  new Sphere(Size.LARGE,  player));
             atmosfera$initialized = true;
         }
 
-        this.atmosfera$environmentContexts.get(EnvironmentContext.Size.SMALL).update();
-        this.atmosfera$environmentContexts.get(EnvironmentContext.Size.MEDIUM).update();
-        this.atmosfera$environmentContexts.get(EnvironmentContext.Size.LARGE).update();
+        if (--atmosfera$updateTimer <= 0 && ContextUtil.EXECUTOR.getQueue().isEmpty()) {
+            this.atmosfera$environmentContexts.get(Size.SMALL ).update();
+            this.atmosfera$environmentContexts.get(Size.MEDIUM).update();
+            this.atmosfera$environmentContexts.get(Size.LARGE ).update();
+            atmosfera$updateTimer = 20;
+        }
     }
 
     @Override

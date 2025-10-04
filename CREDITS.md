@@ -7,6 +7,7 @@ The following acknowledges the notable contributors and utilized resources of th
 * [zeydOpr](https://github.com/zeydOpr) - Contributor
 * [Qendolin](https://github.com/Qendolin) - Contributor
 * [Zetabite](https://github.com/Zetabite) - Contributor
+* [Fourmisain](https://github.com/Fourmisain) - Contributor, Maintainer
 
 ## Technologies
 * [Fabric API](https://github.com/FabricMC/fabric) under [Apache License 2.0]
