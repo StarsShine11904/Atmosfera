@@ -81,7 +81,7 @@ public class Sphere extends AbstractEnvironmentContext {
             BossBarHud bossBarHud = MinecraftClient.getInstance().inGameHud.getBossBarHud();
             Map<UUID, ClientBossBar> bossBarMap = ((BossBarHudAccessor) bossBarHud).getBossBars();
 
-            for(BossBar bossBar : bossBarMap.values()) {
+            for (BossBar bossBar : bossBarMap.values()) {
                 String value = bossBar.getName() instanceof TranslatableText translatable ? translatable.getKey() : bossBar.getName().toString();
                 this.bossBars.add(value);
             }
@@ -92,8 +92,8 @@ public class Sphere extends AbstractEnvironmentContext {
             this.isStormy = world.isThundering();
             this.vehicle = getPlayer().getVehicle();
 
-            ContextUtil.UPPER_HEMISPHERE_EXECUTOR.execute(() -> this.upperHemisphere.update(pos.up()));
-            ContextUtil.LOWER_HEMISPHERE_EXECUTOR.execute(() -> this.lowerHemisphere.update(pos.down()));
+            ContextUtil.EXECUTOR.execute(() -> this.upperHemisphere.update(pos.up()));
+            ContextUtil.EXECUTOR.execute(() -> this.lowerHemisphere.update(pos.down()));
         }
     }
 
