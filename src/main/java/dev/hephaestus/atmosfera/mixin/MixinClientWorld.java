@@ -27,6 +27,7 @@ public class MixinClientWorld implements ClientWorldDuck {
     private AtmosphericSoundHandler atmosfera$soundHandler;
     private HashMap<EnvironmentContext.Size, Sphere> atmosfera$environmentContexts;
     private boolean atmosfera$initialized;
+    private int atmosfera$updateTimer = 0;
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void initializeSoundHandler(ClientPlayNetworkHandler networkHandler, ClientWorld.Properties properties, RegistryKey<World> registryRef, RegistryEntry<DimensionType> dimensionType, int loadDistance, int simulationDistance, WorldRenderer worldRenderer, boolean debugWorld, long seed, int seaLevel, CallbackInfo ci) {
@@ -64,10 +65,11 @@ public class MixinClientWorld implements ClientWorldDuck {
             atmosfera$initialized = true;
         }
 
-        if (ContextUtil.EXECUTOR.getQueue().isEmpty()) {
+        if (--atmosfera$updateTimer <= 0 && ContextUtil.EXECUTOR.getQueue().isEmpty()) {
             this.atmosfera$environmentContexts.get(EnvironmentContext.Size.SMALL ).update();
             this.atmosfera$environmentContexts.get(EnvironmentContext.Size.MEDIUM).update();
             this.atmosfera$environmentContexts.get(EnvironmentContext.Size.LARGE ).update();
+            atmosfera$updateTimer = 20;
         }
     }
 
