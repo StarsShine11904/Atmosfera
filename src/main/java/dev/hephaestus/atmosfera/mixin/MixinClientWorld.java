@@ -19,13 +19,13 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.function.BooleanSupplier;
 
 @Mixin(ClientWorld.class)
 public class MixinClientWorld implements ClientWorldDuck {
     private AtmosphericSoundHandler atmosfera$soundHandler;
-    private HashMap<EnvironmentContext.Size, Sphere> atmosfera$environmentContexts;
+    private EnumMap<EnvironmentContext.Size, Sphere> atmosfera$environmentContexts;
     private boolean atmosfera$initialized;
     private int atmosfera$updateTimer = 0;
 
@@ -58,7 +58,7 @@ public class MixinClientWorld implements ClientWorldDuck {
     public void atmosfera$updateEnvironmentContext() {
         if(!this.atmosfera$initialized) {
             ClientPlayerEntity player = MinecraftClient.getInstance().player;
-            this.atmosfera$environmentContexts = new HashMap<>();
+            this.atmosfera$environmentContexts = new EnumMap<>(EnvironmentContext.Size.class);
             this.atmosfera$environmentContexts.put(EnvironmentContext.Size.SMALL, new Sphere(EnvironmentContext.Size.SMALL, player));
             this.atmosfera$environmentContexts.put(EnvironmentContext.Size.MEDIUM, new Sphere(EnvironmentContext.Size.MEDIUM, player));
             this.atmosfera$environmentContexts.put(EnvironmentContext.Size.LARGE, new Sphere(EnvironmentContext.Size.LARGE, player));
