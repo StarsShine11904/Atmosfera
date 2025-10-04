@@ -7,27 +7,20 @@ import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public final class ContextUtil {
     public static final byte[][][][] OFFSETS = new byte[3][][][];
 
-    public static ExecutorService buildDiscardingSingleDaemonThreadExecutor() {
-        return new ThreadPoolExecutor(1, 1,
+    public static final ThreadPoolExecutor EXECUTOR = new ThreadPoolExecutor(2, 2,
             0L, TimeUnit.MILLISECONDS,
-            new ArrayBlockingQueue<>(1),
-            (runnable) -> {
+            new ArrayBlockingQueue<>(6), // (SMALL, MEDIUM, LARGE) * (upper + lower)
+            runnable -> {
                 Thread thread = new Thread(runnable);
                 thread.setDaemon(true);
                 return thread;
-            },
-            new ThreadPoolExecutor.DiscardOldestPolicy());
-    }
-
-    public static final ExecutorService UPPER_HEMISPHERE_EXECUTOR = buildDiscardingSingleDaemonThreadExecutor();
-    public static final ExecutorService LOWER_HEMISPHERE_EXECUTOR = buildDiscardingSingleDaemonThreadExecutor();
+            });
 
     private ContextUtil() {}
 

@@ -14,7 +14,7 @@ public record AtmosphericSound(Identifier id, Identifier soundId,
     public float getVolume(ClientWorld world) {
         float volume = 1F;
         EnvironmentContext context = world.atmosfera$getEnvironmentContext(this.size, this.shape);
-        if(context == null) return 0;
+        if (context == null) return 0;
 
         for (AtmosphericSoundModifier modifier : this.modifiers) {
             volume *= modifier.getModifier(context);
