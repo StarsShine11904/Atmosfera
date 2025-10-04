@@ -87,8 +87,8 @@ public class Sphere extends AbstractEnvironmentContext {
             this.isStormy = world.isThundering();
             this.vehicle = getPlayer().getVehicle();
 
-            ContextUtil.UPPER_HEMISPHERE_EXECUTOR.execute(() -> this.upperHemisphere.update(pos.up()));
-            ContextUtil.LOWER_HEMISPHERE_EXECUTOR.execute(() -> this.lowerHemisphere.update(pos.down()));
+            ContextUtil.EXECUTOR.execute(() -> this.upperHemisphere.update(pos.up()));
+            ContextUtil.EXECUTOR.execute(() -> this.lowerHemisphere.update(pos.down()));
         }
     }
 

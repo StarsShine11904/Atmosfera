@@ -2,6 +2,7 @@ package dev.hephaestus.atmosfera.mixin;
 
 import dev.hephaestus.atmosfera.client.sound.AtmosphericSoundHandler;
 import dev.hephaestus.atmosfera.client.sound.util.ClientWorldDuck;
+import dev.hephaestus.atmosfera.world.context.ContextUtil;
 import dev.hephaestus.atmosfera.world.context.EnvironmentContext;
 import dev.hephaestus.atmosfera.world.context.Sphere;
 import net.minecraft.client.MinecraftClient;
@@ -63,9 +64,11 @@ public class MixinClientWorld implements ClientWorldDuck {
             atmosfera$initialized = true;
         }
 
-        this.atmosfera$environmentContexts.get(EnvironmentContext.Size.SMALL).update();
-        this.atmosfera$environmentContexts.get(EnvironmentContext.Size.MEDIUM).update();
-        this.atmosfera$environmentContexts.get(EnvironmentContext.Size.LARGE).update();
+        if (ContextUtil.EXECUTOR.getQueue().isEmpty()) {
+            this.atmosfera$environmentContexts.get(EnvironmentContext.Size.SMALL ).update();
+            this.atmosfera$environmentContexts.get(EnvironmentContext.Size.MEDIUM).update();
+            this.atmosfera$environmentContexts.get(EnvironmentContext.Size.LARGE ).update();
+        }
     }
 
     @Override
