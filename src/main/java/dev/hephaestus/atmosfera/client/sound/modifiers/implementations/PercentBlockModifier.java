@@ -14,8 +14,8 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.world.World;
 
-public record PercentBlockModifier(float lowerVolumeSlider, float upperVolumeSlider, float min, float max, ImmutableCollection<Block> blocks, ImmutableCollection<TagKey<Block>> blockTags) implements AtmosphericSoundModifier, AtmosphericSoundModifier.Factory {
-    public PercentBlockModifier(float lowerVolumeSlider, float upperVolumeSlider, float min, float max, ImmutableCollection<Block> blocks, ImmutableCollection<TagKey<Block>> blockTags) {
+public record PercentBlockModifier(float lowerVolumeRange, float upperVolumeRange, float min, float max, ImmutableCollection<Block> blocks, ImmutableCollection<TagKey<Block>> blockTags) implements AtmosphericSoundModifier, AtmosphericSoundModifier.Factory {
+    public PercentBlockModifier(float lowerVolumeRange, float upperVolumeRange, float min, float max, ImmutableCollection<Block> blocks, ImmutableCollection<TagKey<Block>> blockTags) {
         ImmutableCollection.Builder<Block> blocksBuilder = ImmutableList.builder();
 
         // Remove blocks that are already present in tags so that they aren't counted twice
@@ -32,8 +32,8 @@ public record PercentBlockModifier(float lowerVolumeSlider, float upperVolumeSli
 
         this.blocks = blocksBuilder.build();
         this.blockTags = blockTags;
-        this.lowerVolumeSlider = lowerVolumeSlider;
-        this.upperVolumeSlider = upperVolumeSlider;
+        this.lowerVolumeRange = lowerVolumeRange;
+        this.upperVolumeRange = upperVolumeRange;
         this.min = min;
         this.max = max;
     }
@@ -50,8 +50,8 @@ public record PercentBlockModifier(float lowerVolumeSlider, float upperVolumeSli
             modifier += context.getBlockTagPercentage(tag);
         }
 
-        return modifier >= this.lowerVolumeSlider && modifier >= this.min && modifier <= this.max
-                ? (modifier - this.lowerVolumeSlider) * (1.0F / (this.upperVolumeSlider - this.lowerVolumeSlider))
+        return modifier >= this.lowerVolumeRange && modifier >= this.min && modifier <= this.max
+                ? (modifier - this.lowerVolumeRange) * (1.0F / (this.upperVolumeRange - this.lowerVolumeRange))
                 : 0;
     }
 
@@ -75,18 +75,18 @@ public record PercentBlockModifier(float lowerVolumeSlider, float upperVolumeSli
             }
         });
 
-        float lowerVolumeSlider = 0, upperVolumeSlider = 1;
+        float lowerVolumeBound = 0, upperVolumeBound = 1;
 
         if (object.has("range")) {
             JsonArray array = object.getAsJsonArray("range");
-            lowerVolumeSlider = array.get(0).getAsFloat();
-            upperVolumeSlider = array.get(1).getAsFloat();
+            lowerVolumeBound = array.get(0).getAsFloat();
+            upperVolumeBound = array.get(1).getAsFloat();
         }
 
         float min = object.has("min") ? object.get("min").getAsFloat() : -Float.MAX_VALUE;
         float max = object.has("max") ? object.get("max").getAsFloat() : Float.MAX_VALUE;
 
-        return new PercentBlockModifier(lowerVolumeSlider, upperVolumeSlider, min, max, blocks.build(), tags.build());
+        return new PercentBlockModifier(lowerVolumeBound, upperVolumeBound, min, max, blocks.build(), tags.build());
     }
 
     @Override

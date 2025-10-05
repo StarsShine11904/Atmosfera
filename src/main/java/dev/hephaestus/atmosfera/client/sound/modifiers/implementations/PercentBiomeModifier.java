@@ -15,8 +15,8 @@ import net.minecraft.util.JsonHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 
-public record PercentBiomeModifier(float min, float max, ImmutableCollection<RegistryEntry<Biome>> biomes, ImmutableCollection<TagKey<Biome>> biomeTags) implements AtmosphericSoundModifier {
-    public PercentBiomeModifier(float min, float max, ImmutableCollection<RegistryEntry<Biome>> biomes, ImmutableCollection<TagKey<Biome>> biomeTags) {
+public record PercentBiomeModifier(float lowerVolumeBound, float upperVolumeBound, float min, float max, ImmutableCollection<RegistryEntry<Biome>> biomes, ImmutableCollection<TagKey<Biome>> biomeTags) implements AtmosphericSoundModifier {
+    public PercentBiomeModifier(float lowerVolumeBound, float upperVolumeBound, float min, float max, ImmutableCollection<RegistryEntry<Biome>> biomes, ImmutableCollection<TagKey<Biome>> biomeTags) {
         ImmutableCollection.Builder<RegistryEntry<Biome>> biomesBuilder = ImmutableList.builder();
 
         // Remove biomes that are already present in tags so that they aren't counted twice
@@ -33,6 +33,8 @@ public record PercentBiomeModifier(float min, float max, ImmutableCollection<Reg
 
         this.biomes = biomesBuilder.build();
         this.biomeTags = biomeTags;
+        this.lowerVolumeBound = lowerVolumeBound;
+        this.upperVolumeBound = upperVolumeBound;
         this.min = min;
         this.max = max;
     }
@@ -49,8 +51,8 @@ public record PercentBiomeModifier(float min, float max, ImmutableCollection<Reg
             modifier += context.getBiomeTagPercentage(tag);
         }
 
-        return modifier >= this.min
-                ? (modifier - this.min) * (1.0F / (this.max - this.min))
+        return modifier >= this.lowerVolumeBound && modifier >= min && modifier <= max
+                ? (modifier - this.lowerVolumeBound) * (1.0F / (this.upperVolumeBound - this.lowerVolumeBound))
                 : 0;
     }
 
@@ -68,18 +70,21 @@ public record PercentBiomeModifier(float min, float max, ImmutableCollection<Reg
             }
         });
 
-        float min = 0, max = 1;
+        float lowerVolumeRange = 0, upperVolumeRange = 1;
 
         if (object.has("range")) {
             JsonArray array = object.getAsJsonArray("range");
-            min = array.get(0).getAsFloat();
-            max = array.get(1).getAsFloat();
+            lowerVolumeRange = array.get(0).getAsFloat();
+            upperVolumeRange = array.get(1).getAsFloat();
         }
 
-        return new PercentBiomeModifier.Factory(min, max, biomes.build(), tags.build());
+        float min = object.has("min") ? object.get("min").getAsFloat() : -Float.MAX_VALUE;
+        float max = object.has("max") ? object.get("max").getAsFloat() : Float.MAX_VALUE;
+
+        return new PercentBiomeModifier.Factory(lowerVolumeRange, upperVolumeRange, min, max, biomes.build(), tags.build());
     }
 
-    private record Factory(float min, float max, ImmutableCollection<Identifier> biomes, ImmutableCollection<Identifier> biomeTags) implements AtmosphericSoundModifier.Factory {
+    private record Factory(float lowerVolumeRange, float upperVolumeRange, float min, float max, ImmutableCollection<Identifier> biomes, ImmutableCollection<Identifier> biomeTags) implements AtmosphericSoundModifier.Factory {
 
         @Override
         public AtmosphericSoundModifier create(World world) {
@@ -101,7 +106,7 @@ public record PercentBiomeModifier(float min, float max, ImmutableCollection<Reg
                 tags.add(TagKey.of(RegistryKeys.BIOME, id));
             }
 
-            return new PercentBiomeModifier(this.min, this.max, biomes.build(), tags.build());
+            return new PercentBiomeModifier(lowerVolumeRange, upperVolumeRange, min, max, biomes.build(), tags.build());
         }
     }
 }
