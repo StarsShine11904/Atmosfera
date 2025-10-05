@@ -2,9 +2,10 @@ package dev.hephaestus.atmosfera.client.sound.modifiers.implementations;
 
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dev.hephaestus.atmosfera.client.sound.modifiers.AtmosphericSoundModifier;
+import dev.hephaestus.atmosfera.client.sound.modifiers.CommonAttributes.Bound;
+import dev.hephaestus.atmosfera.client.sound.modifiers.CommonAttributes.Range;
 import dev.hephaestus.atmosfera.world.context.EnvironmentContext;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKeys;
@@ -15,8 +16,11 @@ import net.minecraft.util.JsonHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 
-public record PercentBiomeModifier(float lowerVolumeBound, float upperVolumeBound, float min, float max, ImmutableCollection<RegistryEntry<Biome>> biomes, ImmutableCollection<TagKey<Biome>> biomeTags) implements AtmosphericSoundModifier {
-    public PercentBiomeModifier(float lowerVolumeBound, float upperVolumeBound, float min, float max, ImmutableCollection<RegistryEntry<Biome>> biomes, ImmutableCollection<TagKey<Biome>> biomeTags) {
+import static dev.hephaestus.atmosfera.client.sound.modifiers.CommonAttributes.getBound;
+import static dev.hephaestus.atmosfera.client.sound.modifiers.CommonAttributes.getRange;
+
+public record PercentBiomeModifier(Range range, Bound bound, ImmutableCollection<RegistryEntry<Biome>> biomes, ImmutableCollection<TagKey<Biome>> biomeTags) implements AtmosphericSoundModifier {
+    public PercentBiomeModifier(Range range, Bound bound, ImmutableCollection<RegistryEntry<Biome>> biomes, ImmutableCollection<TagKey<Biome>> biomeTags) {
         ImmutableCollection.Builder<RegistryEntry<Biome>> biomesBuilder = ImmutableList.builder();
 
         // Remove biomes that are already present in tags so that they aren't counted twice
@@ -33,10 +37,8 @@ public record PercentBiomeModifier(float lowerVolumeBound, float upperVolumeBoun
 
         this.biomes = biomesBuilder.build();
         this.biomeTags = biomeTags;
-        this.lowerVolumeBound = lowerVolumeBound;
-        this.upperVolumeBound = upperVolumeBound;
-        this.min = min;
-        this.max = max;
+        this.range = range;
+        this.bound = bound;
     }
 
     @Override
@@ -51,9 +53,7 @@ public record PercentBiomeModifier(float lowerVolumeBound, float upperVolumeBoun
             modifier += context.getBiomeTagPercentage(tag);
         }
 
-        return modifier >= this.lowerVolumeBound && modifier >= min && modifier <= max
-                ? (modifier - this.lowerVolumeBound) * (1.0F / (this.upperVolumeBound - this.lowerVolumeBound))
-                : 0;
+        return range.apply(bound.apply(modifier));
     }
 
     public static AtmosphericSoundModifier.Factory create(JsonObject object) {
@@ -70,21 +70,13 @@ public record PercentBiomeModifier(float lowerVolumeBound, float upperVolumeBoun
             }
         });
 
-        float lowerVolumeRange = 0, upperVolumeRange = 1;
+        Range range = getRange(object);
+        Bound bound = getBound(object);
 
-        if (object.has("range")) {
-            JsonArray array = object.getAsJsonArray("range");
-            lowerVolumeRange = array.get(0).getAsFloat();
-            upperVolumeRange = array.get(1).getAsFloat();
-        }
-
-        float min = object.has("min") ? object.get("min").getAsFloat() : -Float.MAX_VALUE;
-        float max = object.has("max") ? object.get("max").getAsFloat() : Float.MAX_VALUE;
-
-        return new PercentBiomeModifier.Factory(lowerVolumeRange, upperVolumeRange, min, max, biomes.build(), tags.build());
+        return new PercentBiomeModifier.Factory(range, bound, biomes.build(), tags.build());
     }
 
-    private record Factory(float lowerVolumeRange, float upperVolumeRange, float min, float max, ImmutableCollection<Identifier> biomes, ImmutableCollection<Identifier> biomeTags) implements AtmosphericSoundModifier.Factory {
+    private record Factory(Range range, Bound bound, ImmutableCollection<Identifier> biomes, ImmutableCollection<Identifier> biomeTags) implements AtmosphericSoundModifier.Factory {
 
         @Override
         public AtmosphericSoundModifier create(World world) {
@@ -106,7 +98,7 @@ public record PercentBiomeModifier(float lowerVolumeBound, float upperVolumeBoun
                 tags.add(TagKey.of(RegistryKeys.BIOME, id));
             }
 
-            return new PercentBiomeModifier(lowerVolumeRange, upperVolumeRange, min, max, biomes.build(), tags.build());
+            return new PercentBiomeModifier(range, bound, biomes.build(), tags.build());
         }
     }
 }
