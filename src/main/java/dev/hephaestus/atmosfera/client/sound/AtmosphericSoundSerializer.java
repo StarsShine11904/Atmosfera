@@ -48,7 +48,7 @@ public record AtmosphericSoundSerializer(String sourceFolder, Map<Identifier, At
                 EnvironmentContext.Size size = getSize(json, id);
                 ImmutableCollection<AtmosphericSoundModifier.Factory> modifiers = getModifiers(json, id);
                 int defaultVolume = getInteger(json, "default_volume", 100);
-                boolean showSubtitlesByDefault = getBoolean(json, "show_subtitles_by_default", true);
+                boolean showSubtitlesByDefault = getBoolean(json, "default_subtitle", true);
 
                 this.destination.put(id, new AtmosphericSoundDefinition(id, soundId, shape, size, defaultVolume, showSubtitlesByDefault, modifiers));
             } catch (Exception e) {
