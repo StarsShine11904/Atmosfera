@@ -24,21 +24,19 @@ public record SimpleBoundedCondition(Bound bound, Function<EnvironmentContext, N
         return this;
     }
 
-    public static SimpleBoundedCondition altitude(JsonElement element) {
-        return create(element, EnvironmentContext::getAltitude);
+    public static SimpleBoundedCondition altitude(JsonObject object) {
+        return create(object, EnvironmentContext::getAltitude);
     }
 
-    public static SimpleBoundedCondition elevation(JsonElement element) {
-        return create(element, EnvironmentContext::getElevation);
+    public static SimpleBoundedCondition elevation(JsonObject object) {
+        return create(object, EnvironmentContext::getElevation);
     }
 
-    public static SimpleBoundedCondition skyVisibility(JsonElement element) {
-        return create(element, EnvironmentContext::getSkyVisibility);
+    public static SimpleBoundedCondition skyVisibility(JsonObject object) {
+        return create(object, EnvironmentContext::getSkyVisibility);
     }
 
-    public static SimpleBoundedCondition create(JsonElement element, Function<EnvironmentContext, Number> valueGetter) {
-        JsonObject object = element.getAsJsonObject();
-
+    public static SimpleBoundedCondition create(JsonObject object, Function<EnvironmentContext, Number> valueGetter) {
         Bound bound = getBound(object);
 
         return new SimpleBoundedCondition(bound, valueGetter);
