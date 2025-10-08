@@ -60,7 +60,7 @@ public record AtmosphericSoundSerializer(String sourceFolder, Map<Identifier, At
         if (json.has("shape")) {
             return EnvironmentContext.Shape.valueOf(json.getAsJsonPrimitive("shape").getAsString().toUpperCase(Locale.ROOT));
         } else {
-            throw new RuntimeException(String.format("Sound definition '%s' is missing \"shape\" field.", id));
+            throw new RuntimeException("Sound definition '%s' is missing \"shape\" field.".formatted(id));
         }
     }
 
@@ -68,7 +68,7 @@ public record AtmosphericSoundSerializer(String sourceFolder, Map<Identifier, At
         if (json.has("size")) {
             return json.has("size") ? EnvironmentContext.Size.valueOf(json.getAsJsonPrimitive("size").getAsString().toUpperCase(Locale.ROOT)) : EnvironmentContext.Size.MEDIUM;
         } else {
-            throw new RuntimeException(String.format("Sound definition '%s' is missing \"size\" field.", id));
+            throw new RuntimeException("Sound definition '%s' is missing \"size\" field.".formatted(id));
         }
     }
 
@@ -82,7 +82,7 @@ public record AtmosphericSoundSerializer(String sourceFolder, Map<Identifier, At
                 JsonObject modifier = element.getAsJsonObject();
 
                 if (!modifier.has("type")) {
-                    throw new RuntimeException(String.format("Modifier for sound definition '%s' is missing \"type\" field.", id));
+                    throw new RuntimeException("Modifier for sound definition '%s' is missing \"type\" field.".formatted(id));
                 }
 
                 String type = modifier.get("type").getAsString();
