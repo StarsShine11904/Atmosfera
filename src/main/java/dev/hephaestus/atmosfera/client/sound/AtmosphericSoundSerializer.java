@@ -15,7 +15,6 @@ import net.minecraft.resource.SynchronousResourceReloader;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 
-import java.io.InputStreamReader;
 import java.util.Locale;
 import java.util.Map;
 
@@ -28,43 +27,33 @@ public record AtmosphericSoundSerializer(String sourceFolder, Map<Identifier, At
     public void reload(ResourceManager manager) {
         this.destination.clear();
 
-        Map<Identifier, Resource> resources = manager.findResources(this.sourceFolder + "/definitions", (id) -> id.getPath().endsWith(".json"));
+        Map<Identifier, Resource> resources = manager.findResources(this.sourceFolder + "/definitions", id -> id.getPath().endsWith(".json"));
 
         for (Identifier resource : resources.keySet()) {
             Identifier id = Identifier.of(
                     resource.getNamespace(),
                     resource.getPath().substring(
-                            resource.getPath().indexOf("definitions/") + 12,
+                            resource.getPath().indexOf("definitions/") + "definitions/".length(),
                             resource.getPath().indexOf(".json")
                     )
             );
 
-            try {
-                JsonObject json = JsonParser.parseReader(new InputStreamReader(resources.get(resource).getInputStream())).getAsJsonObject();
+            try (var reader = resources.get(resource).getReader()) {
+                JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
 
                 Identifier soundId = Identifier.of(JsonHelper.getString(json, "sound"));
 
                 EnvironmentContext.Shape shape = getShape(json, id);
                 EnvironmentContext.Size size = getSize(json, id);
                 ImmutableCollection<AtmosphericSoundModifier.Factory> modifiers = getModifiers(json, id);
-                int defaultVolume = getInteger(json, "default_volume", 100);
-                boolean showSubtitlesByDefault = getBoolean(json, "default_subtitle", true);
+                int defaultVolume = JsonHelper.getInt(json, "default_volume", 100);
+                boolean showSubtitlesByDefault = JsonHelper.getBoolean(json, "default_subtitle", true);
 
                 this.destination.put(id, new AtmosphericSoundDefinition(id, soundId, shape, size, defaultVolume, showSubtitlesByDefault, modifiers));
             } catch (Exception e) {
                 Atmosfera.error("Failed to load sound event '{}'", id, e);
             }
         }
-    }
-
-    private int getInteger(JsonObject json, String key, int ifAbsent) {
-        JsonElement element = json.get(key);
-        return element != null ? element.getAsInt() : ifAbsent;
-    }
-
-    private boolean getBoolean(JsonObject json, String key, boolean ifAbsent) {
-        JsonElement element = json.get(key);
-        return element != null ? element.getAsBoolean() : ifAbsent;
     }
 
     private static EnvironmentContext.Shape getShape(JsonObject json, Identifier id) {

@@ -1,6 +1,5 @@
 package dev.hephaestus.atmosfera.client.sound.modifiers.implementations;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.hephaestus.atmosfera.client.sound.modifiers.AtmosphericSoundModifier;
 import dev.hephaestus.atmosfera.client.sound.modifiers.CommonAttributes.Bound;
