@@ -60,7 +60,7 @@ public record AtmosphericSoundSerializer(String sourceFolder, Map<Identifier, At
         if (json.has("shape")) {
             return EnvironmentContext.Shape.valueOf(json.getAsJsonPrimitive("shape").getAsString().toUpperCase(Locale.ROOT));
         } else {
-            throw new RuntimeException(String.format("Sound definition '%s' is missing 'shape' field.", id));
+            throw new RuntimeException(String.format("Sound definition '%s' is missing \"shape\" field.", id));
         }
     }
 
@@ -68,7 +68,7 @@ public record AtmosphericSoundSerializer(String sourceFolder, Map<Identifier, At
         if (json.has("size")) {
             return json.has("size") ? EnvironmentContext.Size.valueOf(json.getAsJsonPrimitive("size").getAsString().toUpperCase(Locale.ROOT)) : EnvironmentContext.Size.MEDIUM;
         } else {
-            throw new RuntimeException(String.format("Sound definition '%s' is missing 'size' field.", id));
+            throw new RuntimeException(String.format("Sound definition '%s' is missing \"size\" field.", id));
         }
     }
 
@@ -79,17 +79,19 @@ public record AtmosphericSoundSerializer(String sourceFolder, Map<Identifier, At
 
         if (json.has("modifiers")) {
             for (JsonElement element : json.get("modifiers").getAsJsonArray()) {
-                if (!element.getAsJsonObject().has("type")) {
-                    throw new RuntimeException(String.format("Modifier for sound definition '%s' is missing 'type' field.", id));
+                JsonObject modifier = element.getAsJsonObject();
+
+                if (!modifier.has("type")) {
+                    throw new RuntimeException(String.format("Modifier for sound definition '%s' is missing \"type\" field.", id));
                 }
 
-                String type = element.getAsJsonObject().get("type").getAsString();
+                String type = modifier.get("type").getAsString();
                 AtmosphericSoundModifier.FactoryFactory factory = AtmosphericSoundModifierRegistry.get(type);
 
                 if (factory == null) {
-                    Atmosfera.log("Failed to create modifier of type '{}'", type);
+                    Atmosfera.warn("Modifier type \"{}\" does not exist", type);
                 } else {
-                    modifiers.add(factory.create(element.getAsJsonObject()));
+                    modifiers.add(factory.create(modifier));
                 }
             }
         }
