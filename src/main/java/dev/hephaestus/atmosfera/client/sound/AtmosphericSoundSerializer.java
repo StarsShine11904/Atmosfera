@@ -6,6 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import dev.hephaestus.atmosfera.Atmosfera;
+import dev.hephaestus.atmosfera.AtmosferaConfig;
 import dev.hephaestus.atmosfera.client.sound.modifiers.AtmosphericSoundModifier;
 import dev.hephaestus.atmosfera.client.sound.modifiers.implementations.ConfigModifier;
 import dev.hephaestus.atmosfera.world.context.EnvironmentContext;
@@ -54,6 +55,8 @@ public record AtmosphericSoundSerializer(String sourceFolder, Map<Identifier, At
                 Atmosfera.error("Failed to load sound event '{}'", id, e);
             }
         }
+
+        AtmosferaConfig.loadedSoundDefinitions();
     }
 
     private static EnvironmentContext.Shape getShape(JsonObject json, Identifier id) {
