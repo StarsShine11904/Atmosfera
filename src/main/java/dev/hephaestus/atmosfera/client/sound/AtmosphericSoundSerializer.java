@@ -59,21 +59,12 @@ public record AtmosphericSoundSerializer(String sourceFolder, Map<Identifier, At
 
     private int getInteger(JsonObject json, String key, int ifAbsent) {
         JsonElement element = json.get(key);
-        if (element != null && element.isJsonPrimitive() && element.getAsJsonPrimitive().isBoolean()) {
-            return element.getAsInt();
-        }
-
-        return ifAbsent;
+        return element != null ? element.getAsInt() : ifAbsent;
     }
 
     private boolean getBoolean(JsonObject json, String key, boolean ifAbsent) {
         JsonElement element = json.get(key);
-
-        if (element != null && element.isJsonPrimitive() && element.getAsJsonPrimitive().isBoolean()) {
-            return element.getAsBoolean();
-        }
-
-        return ifAbsent;
+        return element != null ? element.getAsBoolean() : ifAbsent;
     }
 
     private static EnvironmentContext.Shape getShape(JsonObject json, Identifier id) {
@@ -104,8 +95,7 @@ public record AtmosphericSoundSerializer(String sourceFolder, Map<Identifier, At
                 }
 
                 String type = element.getAsJsonObject().get("type").getAsString();
-                AtmosphericSoundModifier.FactoryFactory factory = AtmosphericSoundModifierRegistry
-                        .get(type);
+                AtmosphericSoundModifier.FactoryFactory factory = AtmosphericSoundModifierRegistry.get(type);
 
                 if (factory == null) {
                     Atmosfera.log("Failed to create modifier of type '{}'", type);
