@@ -19,16 +19,18 @@ import net.minecraft.util.JsonHelper;
 import java.util.Locale;
 import java.util.Map;
 
-public record AtmosphericSoundSerializer(String sourceFolder, Map<Identifier, AtmosphericSoundDefinition> destination) implements SynchronousResourceReloader {
-    public Identifier getFabricId() {
-        return Atmosfera.id(this.sourceFolder);
-    }
-
+public class SoundDefinitionsReloader implements SynchronousResourceReloader {
     @Override
     public void reload(ResourceManager manager) {
-        this.destination.clear();
+        loadSoundDefinitions(manager, "sounds/ambient", Atmosfera.SOUND_DEFINITIONS);
+        loadSoundDefinitions(manager, "sounds/music", Atmosfera.MUSIC_DEFINITIONS);
+        AtmosferaConfig.loadedSoundDefinitions();
+    }
 
-        Map<Identifier, Resource> resources = manager.findResources(this.sourceFolder + "/definitions", id -> id.getPath().endsWith(".json"));
+    private static void loadSoundDefinitions(ResourceManager manager, String sourceFolder, Map<Identifier, AtmosphericSoundDefinition> destination) {
+        destination.clear();
+
+        Map<Identifier, Resource> resources = manager.findResources(sourceFolder + "/definitions", id -> id.getPath().endsWith(".json"));
 
         for (Identifier resource : resources.keySet()) {
             Identifier id = Identifier.of(
@@ -50,13 +52,11 @@ public record AtmosphericSoundSerializer(String sourceFolder, Map<Identifier, At
                 int defaultVolume = JsonHelper.getInt(json, "default_volume", 100);
                 boolean showSubtitlesByDefault = JsonHelper.getBoolean(json, "default_subtitle", true);
 
-                this.destination.put(id, new AtmosphericSoundDefinition(id, soundId, shape, size, defaultVolume, showSubtitlesByDefault, modifiers));
+                destination.put(id, new AtmosphericSoundDefinition(id, soundId, shape, size, defaultVolume, showSubtitlesByDefault, modifiers));
             } catch (Exception e) {
                 Atmosfera.error("Failed to load sound event '{}'", id, e);
             }
         }
-
-        AtmosferaConfig.loadedSoundDefinitions();
     }
 
     private static EnvironmentContext.Shape getShape(JsonObject json, Identifier id) {
