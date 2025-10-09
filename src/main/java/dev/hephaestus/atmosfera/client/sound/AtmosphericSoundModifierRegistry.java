@@ -11,19 +11,8 @@ public final class AtmosphericSoundModifierRegistry {
 
     private AtmosphericSoundModifierRegistry() {}
 
-    public static void register(AtmosphericSoundModifier.FactoryFactory factory, String... keys) {
-        for (String key : keys) {
-            FACTORIES.putIfAbsent(key, factory);
-        }
-    }
-
-    /**
-     * Used to replace existing factories. Be careful!
-     */
-    public static void set(AtmosphericSoundModifier.FactoryFactory factory, String... keys) {
-        for (String key : keys) {
-            FACTORIES.put(key, factory);
-        }
+    public static void register(AtmosphericSoundModifier.FactoryFactory factory, String type) {
+        FACTORIES.putIfAbsent(type, factory);
     }
 
     public static AtmosphericSoundModifier.FactoryFactory get(String type) {
@@ -31,16 +20,16 @@ public final class AtmosphericSoundModifierRegistry {
     }
 
     static {
-        register(SimpleBoundedCondition::altitude, "altitude", "distance_from_ground");
-        register(SimpleBoundedCondition::elevation, "elevation", "height");
-        register(SimpleBoundedCondition::skyVisibility, "sky_visibility", "percent_sky_visible");
+        register(SimpleBoundedCondition::altitude, "altitude");
+        register(SimpleBoundedCondition::elevation, "elevation");
+        register(SimpleBoundedCondition::skyVisibility, "sky_visibility");
         register(SimpleBooleanCondition::isDaytime, "is_daytime");
         register(SimpleBooleanCondition::isRainy, "is_rainy");
         register(SimpleBooleanCondition::isStormy, "is_stormy");
         register(PercentBlockModifier::create, "percent_block");
         register(PercentBiomeModifier::create, "percent_biome");
-        register(RidingCondition::create, "vehicle", "riding");
-        register(DimensionEffectsModifier::create, "sky_properties", "dimension_effects");
+        register(RidingCondition::create, "riding");
+        register(DimensionEffectsModifier::create, "dimension_effects");
         register(BossBarCondition::create, "boss_bar");
     }
 }
