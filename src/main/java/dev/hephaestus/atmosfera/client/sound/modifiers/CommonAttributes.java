@@ -20,8 +20,8 @@ public class CommonAttributes {
 
     public record Range(float lower, float upper) {
         public float apply(float x) {
-            if (x <= lower) return 0;
             if (x >= upper) return 1;
+            if (x <= lower) return 0;
             return (x - lower) / (upper - lower);
         }
     }
