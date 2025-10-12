@@ -7,12 +7,12 @@ import net.minecraft.world.World;
 
 import java.util.regex.Pattern;
 
-public record BossBarCondition(String text, boolean isRegex) implements AtmosphericSoundModifier, AtmosphericSoundModifier.Factory {
+public record BossBarCondition(String text, Pattern regex) implements AtmosphericSoundModifier, AtmosphericSoundModifier.Factory {
     @Override
     public float getModifier(EnvironmentContext context) {
-        if (this.isRegex) {
+        if (this.regex != null) {
             for (String value : context.getBossBars()) {
-                if (Pattern.matches(this.text, value)) return 1;
+                if (regex.matcher(value).matches()) return 1;
             }
         } else if (context.getBossBars().contains(this.text)) {
             return 1;
@@ -28,9 +28,9 @@ public record BossBarCondition(String text, boolean isRegex) implements Atmosphe
 
     public static Factory create(JsonObject object) {
         if (object.has("matches")) {
-            return new BossBarCondition(object.get("matches").getAsString(), true);
+            return new BossBarCondition(null, Pattern.compile(object.get("matches").getAsString()));
         } else if (object.has("text")) {
-            return new BossBarCondition(object.get("text").getAsString(), false);
+            return new BossBarCondition(object.get("text").getAsString(), null);
         } else {
             throw new RuntimeException("Modifier for 'boss_bar' is missing 'matches' or 'text' field.");
         }
