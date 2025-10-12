@@ -3,19 +3,21 @@ package dev.hephaestus.atmosfera.client.sound.modifiers.implementations;
 import com.google.gson.JsonObject;
 import dev.hephaestus.atmosfera.client.sound.modifiers.AtmosphericSoundModifier;
 import dev.hephaestus.atmosfera.client.sound.modifiers.CommonAttributes.Bound;
+import dev.hephaestus.atmosfera.client.sound.modifiers.CommonAttributes.Range;
 import dev.hephaestus.atmosfera.world.context.EnvironmentContext;
 import net.minecraft.world.World;
 
 import java.util.function.Function;
 
 import static dev.hephaestus.atmosfera.client.sound.modifiers.CommonAttributes.getBound;
+import static dev.hephaestus.atmosfera.client.sound.modifiers.CommonAttributes.getRange;
 
-public record SimpleBoundedCondition(Bound bound, Function<EnvironmentContext, Number> valueGetter) implements AtmosphericSoundModifier, AtmosphericSoundModifier.Factory {
+public record SimpleBoundedCondition(Range range, Bound bound, Function<EnvironmentContext, Number> valueGetter) implements AtmosphericSoundModifier, AtmosphericSoundModifier.Factory {
     @Override
     public float getModifier(EnvironmentContext context) {
         float value = this.valueGetter.apply(context).floatValue();
 
-        return bound.apply(value);
+        return range.apply(bound.apply(value));
     }
 
     @Override
@@ -36,8 +38,9 @@ public record SimpleBoundedCondition(Bound bound, Function<EnvironmentContext, N
     }
 
     public static SimpleBoundedCondition create(JsonObject object, Function<EnvironmentContext, Number> valueGetter) {
+        Range range = getRange(object);
         Bound bound = getBound(object);
 
-        return new SimpleBoundedCondition(bound, valueGetter);
+        return new SimpleBoundedCondition(range, bound, valueGetter);
     }
 }
