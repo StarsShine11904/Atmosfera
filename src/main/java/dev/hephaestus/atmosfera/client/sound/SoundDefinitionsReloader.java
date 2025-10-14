@@ -94,7 +94,7 @@ public class SoundDefinitionsReloader implements SynchronousResourceReloader {
                 if (factory == null) {
                     Atmosfera.warn("Modifier type \"{}\" does not exist", type);
                 } else {
-                    modifiers.add(factory.create(modifierJson));
+                    modifiers.add(factory.deserialize(modifierJson));
                 }
             }
         }

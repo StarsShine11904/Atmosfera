@@ -7,15 +7,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class AtmosphericSoundModifierRegistry {
-    private static final Map<String, AtmosphericSoundModifier.FactoryFactory> FACTORIES = new HashMap<>();
+    private static final Map<String, AtmosphericSoundModifier.FactoryDeserializer> FACTORIES = new HashMap<>();
 
     private AtmosphericSoundModifierRegistry() {}
 
-    public static void register(AtmosphericSoundModifier.FactoryFactory factory, String type) {
+    public static void register(AtmosphericSoundModifier.FactoryDeserializer factory, String type) {
         FACTORIES.putIfAbsent(type, factory);
     }
 
-    public static AtmosphericSoundModifier.FactoryFactory get(String type) {
+    public static AtmosphericSoundModifier.FactoryDeserializer get(String type) {
         return FACTORIES.get(type);
     }
 
