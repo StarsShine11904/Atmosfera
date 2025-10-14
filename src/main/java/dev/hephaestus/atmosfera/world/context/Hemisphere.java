@@ -36,107 +36,107 @@ class Hemisphere implements EnvironmentContext {
 
     @Override
     public ClientPlayerEntity getPlayer() {
-        return this.sphere.player;
+        return sphere.player;
     }
 
     @Override
     public float getBlockTypePercentage(Block block) {
-        return this.blockTypes.getOrDefault(block, 0) / (float) this.blockCount.get();
+        return blockTypes.getOrDefault(block, 0) / (float) blockCount.get();
     }
 
     @Override
     public float getBlockTagPercentage(TagKey<Block> blocks) {
-        return this.blockTags.getOrDefault(blocks.id(), 0) / (float) this.blockCount.get();
+        return blockTags.getOrDefault(blocks.id(), 0) / (float) blockCount.get();
     }
 
     @Override
     public float getBiomePercentage(Biome biome) {
-        return this.biomeTypes.getOrDefault(biome, 0) / (float) this.blockCount.get();
+        return biomeTypes.getOrDefault(biome, 0) / (float) blockCount.get();
     }
 
     @Override
     public float getBiomeTagPercentage(TagKey<Biome> biomes) {
-        return this.biomeTags.getOrDefault(biomes.id(), 0) / (float) this.blockCount.get();
+        return biomeTags.getOrDefault(biomes.id(), 0) / (float) blockCount.get();
     }
 
     @Override
     public float getAltitude() {
-        return this.sphere.altitude;
+        return sphere.altitude;
     }
 
     @Override
     public float getElevation() {
-        return this.sphere.elevation;
+        return sphere.elevation;
     }
 
     @Override
     public float getSkyVisibility() {
-        return this.skyVisibility.get() / (float) this.blockCount.get();
+        return skyVisibility.get() / (float) blockCount.get();
     }
 
     @Override
     public boolean isDaytime() {
-        return this.sphere.isDay;
+        return sphere.isDay;
     }
 
     @Override
     public boolean isRainy() {
-        return this.sphere.isRainy;
+        return sphere.isRainy;
     }
 
     @Override
     public boolean isStormy() {
-        return this.sphere.isStormy;
+        return sphere.isStormy;
     }
 
     @Override
     public Entity getVehicle() {
-        return this.sphere.vehicle;
+        return sphere.vehicle;
     }
 
     @Override
     public Collection<String> getBossBars() {
-        return this.sphere.bossBars;
+        return sphere.bossBars;
     }
 
     private void clear() {
-        this.blockCount.set(0);
-        this.skyVisibility.set(0);
-        this.blockTypes.replaceAll((block, integer) -> 0);
-        this.blockTags.replaceAll((identifier, integer) -> 0);
-        this.biomeTypes.replaceAll((biome, integer) -> 0);
-        this.blockTags.replaceAll((identifier, integer) -> 0);
+        blockCount.set(0);
+        skyVisibility.set(0);
+        blockTypes.replaceAll((block, integer) -> 0);
+        blockTags.replaceAll((identifier, integer) -> 0);
+        biomeTypes.replaceAll((biome, integer) -> 0);
+        blockTags.replaceAll((identifier, integer) -> 0);
     }
 
     @SuppressWarnings("deprecation")
     private void add(World world, BlockPos pos) {
         Block block = world.getBlockState(pos).getBlock();
-        this.blockTypes.merge(block, 1, Integer::sum);
+        blockTypes.merge(block, 1, Integer::sum);
         block.getRegistryEntry().streamTags().forEach(blockTag -> {
-            this.blockTags.merge(blockTag.id(), 1, Integer::sum);
+            blockTags.merge(blockTag.id(), 1, Integer::sum);
         });
 
         RegistryEntry<Biome> biomeEntry = world.getBiome(pos);
         Biome biome = biomeEntry.value();
         biomeEntry.streamTags().forEach(biomeTag -> {
-            this.biomeTags.merge(biomeTag.id(), 1, Integer::sum);
+            biomeTags.merge(biomeTag.id(), 1, Integer::sum);
         });
 
-        this.biomeTypes.merge(biome, 1, Integer::sum);
-        this.skyVisibility.addAndGet(world.getLightLevel(LightType.SKY, pos) / 15);
-        this.blockCount.incrementAndGet();
+        biomeTypes.merge(biome, 1, Integer::sum);
+        skyVisibility.addAndGet(world.getLightLevel(LightType.SKY, pos) / 15);
+        blockCount.incrementAndGet();
     }
 
     // runs on worker threads
     void update(BlockPos center) {
-        this.clear();
+        clear();
 
         BlockPos.Mutable mut = new BlockPos.Mutable();
         World world = getPlayer().getEntityWorld();
 
-        for (byte[] a : this.offsets) {
+        for (byte[] a : offsets) {
             mut.set(center.getX() + a[0], center.getY() + a[1], center.getZ() + a[2]);
-            this.add(world, mut);
+            add(world, mut);
         }
     }
 }

@@ -68,7 +68,7 @@ public class AtmosphericSoundHandler {
 
             // The non-zero volume prevents the events getting triggered multiple times at volumes near zero.
             if (volume >= 0.0125 && client.options.getSoundVolume(SoundCategory.AMBIENT) > 0) {
-                var soundInstance = new AtmosphericSoundInstance(sound, 0.0001F);
+                var soundInstance = new AtmosphericSoundInstance(sound, 0.0001f);
                 playingSounds.put(sound, soundInstance);
                 client.getSoundManager().playNextTick(soundInstance);
                 Atmosfera.debug("volume > 0: {} - {}", sound.id(), volume);

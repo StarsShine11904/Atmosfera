@@ -20,12 +20,12 @@ import static dev.hephaestus.atmosfera.client.sound.modifiers.CommonAttributes.g
 
 public record PercentBlockModifier(Range range, Bound bound, ImmutableCollection<Block> blocks, ImmutableCollection<TagKey<Block>> blockTags) implements AtmosphericSoundModifier, AtmosphericSoundModifier.Factory {
     public PercentBlockModifier(Range range, Bound bound, ImmutableCollection<Block> blocks, ImmutableCollection<TagKey<Block>> blockTags) {
-        ImmutableCollection.Builder<Block> blocksBuilder = ImmutableList.builder();
+        var blocksBuilder = ImmutableList.<Block>builder();
 
         // Remove blocks that are already present in tags so that they aren't counted twice
         blocks:
-        for (Block block : blocks) {
-            for (TagKey<Block> tag : blockTags) {
+        for (var block : blocks) {
+            for (var tag : blockTags) {
                 if (block.getDefaultState().isIn(tag)) {
                     continue blocks;
                 }
@@ -42,13 +42,13 @@ public record PercentBlockModifier(Range range, Bound bound, ImmutableCollection
 
     @Override
     public float getModifier(EnvironmentContext context) {
-        float modifier = 0F;
+        float modifier = 0;
 
-        for (Block block : this.blocks) {
+        for (var block : this.blocks) {
             modifier += context.getBlockTypePercentage(block);
         }
 
-        for (TagKey<Block> tag : this.blockTags) {
+        for (var tag : this.blockTags) {
             modifier += context.getBlockTagPercentage(tag);
         }
 
@@ -56,17 +56,16 @@ public record PercentBlockModifier(Range range, Bound bound, ImmutableCollection
     }
 
     public static PercentBlockModifier create(JsonObject object) {
-        ImmutableCollection.Builder<Block> blocks = ImmutableList.builder();
-        ImmutableCollection.Builder<TagKey<Block>> tags = ImmutableList.builder();
+        var blocks = ImmutableList.<Block>builder();
+        var tags = ImmutableList.<TagKey<Block>>builder();
 
         JsonHelper.getArray(object, "blocks").forEach(block -> {
             // Registers only the loaded IDs to avoid false triggers.
             if (block.getAsString().startsWith("#")) {
-                Identifier tagId = Identifier.of(block.getAsString().substring(1));
-                TagKey<Block> tagKey = TagKey.of(RegistryKeys.BLOCK, tagId);
-                tags.add(tagKey);
+                var tagId = Identifier.of(block.getAsString().substring(1));
+                tags.add(TagKey.of(RegistryKeys.BLOCK, tagId));
             } else {
-                Identifier blockId = Identifier.of(block.getAsString());
+                var blockId = Identifier.of(block.getAsString());
 
                 if (Registries.BLOCK.containsId(blockId)) {
                     Block b = Registries.BLOCK.get(blockId);
@@ -75,8 +74,8 @@ public record PercentBlockModifier(Range range, Bound bound, ImmutableCollection
             }
         });
 
-        Range range = getRange(object);
-        Bound bound = getBound(object);
+        var range = getRange(object);
+        var bound = getBound(object);
 
         return new PercentBlockModifier(range, bound, blocks.build(), tags.build());
     }

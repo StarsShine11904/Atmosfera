@@ -43,8 +43,8 @@ public class MinecraftClientMixin {
 		MusicSound sound = original.music();
 		float volume = original.volume();
 
-		if (sound != null && sound != MusicType.MENU && sound != MusicType.CREDITS && this.world != null) {
-			MusicSound atmosphericMusic = this.world.atmosfera$getAtmosphericSoundHandler().getMusicSound(sound);
+		if (sound != null && sound != MusicType.MENU && sound != MusicType.CREDITS && world != null) {
+			MusicSound atmosphericMusic = world.atmosfera$getAtmosphericSoundHandler().getMusicSound(sound);
 			return new MusicInstance(atmosphericMusic, volume); // keep the volume, so music fades out in the pale garden
 		}
 

@@ -7,7 +7,6 @@ import dev.hephaestus.atmosfera.client.sound.modifiers.AtmosphericSoundModifier;
 import dev.hephaestus.atmosfera.client.sound.modifiers.CommonAttributes.Bound;
 import dev.hephaestus.atmosfera.client.sound.modifiers.CommonAttributes.Range;
 import dev.hephaestus.atmosfera.world.context.EnvironmentContext;
-import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.TagKey;
@@ -21,18 +20,18 @@ import static dev.hephaestus.atmosfera.client.sound.modifiers.CommonAttributes.g
 
 public record PercentBiomeModifier(Range range, Bound bound, ImmutableCollection<RegistryEntry<Biome>> biomes, ImmutableCollection<TagKey<Biome>> biomeTags) implements AtmosphericSoundModifier {
     public PercentBiomeModifier(Range range, Bound bound, ImmutableCollection<RegistryEntry<Biome>> biomes, ImmutableCollection<TagKey<Biome>> biomeTags) {
-        ImmutableCollection.Builder<RegistryEntry<Biome>> biomesBuilder = ImmutableList.builder();
+        var biomesBuilder = ImmutableList.<RegistryEntry<Biome>>builder();
 
         // Remove biomes that are already present in tags so that they aren't counted twice
         biomes:
-        for (RegistryEntry<Biome> biomeEntry : biomes) {
-            for (TagKey<Biome> tag : biomeTags) {
-                if (biomeEntry.isIn(tag)) {
+        for (var biome : biomes) {
+            for (var tag : biomeTags) {
+                if (biome.isIn(tag)) {
                     continue biomes;
                 }
             }
 
-            biomesBuilder.add(biomeEntry);
+            biomesBuilder.add(biome);
         }
 
         this.biomes = biomesBuilder.build();
@@ -43,13 +42,13 @@ public record PercentBiomeModifier(Range range, Bound bound, ImmutableCollection
 
     @Override
     public float getModifier(EnvironmentContext context) {
-        float modifier = 0F;
+        float modifier = 0;
 
-        for (RegistryEntry<Biome> biomeEntry : this.biomes) {
+        for (var biomeEntry : this.biomes) {
             modifier += context.getBiomePercentage(biomeEntry.value());
         }
 
-        for (TagKey<Biome> tag : this.biomeTags) {
+        for (var tag : this.biomeTags) {
             modifier += context.getBiomeTagPercentage(tag);
         }
 
@@ -57,21 +56,19 @@ public record PercentBiomeModifier(Range range, Bound bound, ImmutableCollection
     }
 
     public static AtmosphericSoundModifier.Factory create(JsonObject object) {
-
-        ImmutableCollection.Builder<Identifier> biomes = ImmutableList.builder();
-        ImmutableCollection.Builder<Identifier> tags = ImmutableList.builder();
+        var biomes = ImmutableList.<Identifier>builder();
+        var tags = ImmutableList.<Identifier>builder();
 
         JsonHelper.getArray(object, "biomes").forEach(biome -> {
             if (biome.getAsString().startsWith("#")) {
                 tags.add(Identifier.of(biome.getAsString().substring(1)));
             } else {
-                Identifier biomeID = Identifier.of(biome.getAsString());
-                biomes.add(biomeID);
+                biomes.add(Identifier.of(biome.getAsString()));
             }
         });
 
-        Range range = getRange(object);
-        Bound bound = getBound(object);
+        var range = getRange(object);
+        var bound = getBound(object);
 
         return new PercentBiomeModifier.Factory(range, bound, biomes.build(), tags.build());
     }
@@ -80,21 +77,17 @@ public record PercentBiomeModifier(Range range, Bound bound, ImmutableCollection
 
         @Override
         public AtmosphericSoundModifier create(World world) {
-            ImmutableCollection.Builder<RegistryEntry<Biome>> biomes = ImmutableList.builder();
+            var biomes = ImmutableList.<RegistryEntry<Biome>>builder();
 
-            Registry<Biome> biomeRegistry = world.getRegistryManager().getOrThrow(RegistryKeys.BIOME);
+            var biomeRegistry = world.getRegistryManager().getOrThrow(RegistryKeys.BIOME);
 
-            for (Identifier id : this.biomes) {
-                Biome biome = biomeRegistry.get(id);
-
-                if (biome != null) {
-                    biomes.add(biomeRegistry.getEntry(biome));
-                }
+            for (var id : this.biomes) {
+                biomeRegistry.getEntry(id).ifPresent(biomes::add);
             }
 
-            ImmutableCollection.Builder<TagKey<Biome>> tags = ImmutableList.builder();
+            var tags = ImmutableList.<TagKey<Biome>>builder();
 
-            for (Identifier id : this.biomeTags) {
+            for (var id : this.biomeTags) {
                 tags.add(TagKey.of(RegistryKeys.BIOME, id));
             }
 

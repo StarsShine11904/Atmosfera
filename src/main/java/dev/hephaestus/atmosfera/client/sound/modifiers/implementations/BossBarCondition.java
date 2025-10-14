@@ -10,11 +10,11 @@ import java.util.regex.Pattern;
 public record BossBarCondition(String text, Pattern regex) implements AtmosphericSoundModifier, AtmosphericSoundModifier.Factory {
     @Override
     public float getModifier(EnvironmentContext context) {
-        if (this.regex != null) {
+        if (regex != null) {
             for (String value : context.getBossBars()) {
                 if (regex.matcher(value).matches()) return 1;
             }
-        } else if (context.getBossBars().contains(this.text)) {
+        } else if (context.getBossBars().contains(text)) {
             return 1;
         }
 

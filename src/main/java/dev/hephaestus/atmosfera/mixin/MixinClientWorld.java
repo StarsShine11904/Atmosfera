@@ -32,44 +32,44 @@ public class MixinClientWorld implements ClientWorldDuck {
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void initializeSoundHandler(ClientPlayNetworkHandler networkHandler, ClientWorld.Properties properties, RegistryKey<World> registryRef, RegistryEntry<DimensionType> dimensionType, int loadDistance, int simulationDistance, WorldRenderer worldRenderer, boolean debugWorld, long seed, int seaLevel, CallbackInfo ci) {
-        this.atmosfera$soundHandler = new AtmosphericSoundHandler((ClientWorld) (Object) this);
+        atmosfera$soundHandler = new AtmosphericSoundHandler((ClientWorld) (Object) this);
     }
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void tickSoundHandler(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
-        this.atmosfera$soundHandler.tick();
+        atmosfera$soundHandler.tick();
     }
 
     @Override
     public AtmosphericSoundHandler atmosfera$getAtmosphericSoundHandler() {
-        return this.atmosfera$soundHandler;
+        return atmosfera$soundHandler;
     }
 
     @Override
     public EnvironmentContext atmosfera$getEnvironmentContext(Size size, EnvironmentContext.Shape shape) {
         if (!atmosfera$isEnvironmentContextInitialized()) return null;
         return switch (shape) {
-            case UPPER_HEMISPHERE -> this.atmosfera$environmentContexts.get(size).getUpperHemisphere();
-            case LOWER_HEMISPHERE -> this.atmosfera$environmentContexts.get(size).getLowerHemisphere();
-            case SPHERE -> this.atmosfera$environmentContexts.get(size);
+            case UPPER_HEMISPHERE -> atmosfera$environmentContexts.get(size).getUpperHemisphere();
+            case LOWER_HEMISPHERE -> atmosfera$environmentContexts.get(size).getLowerHemisphere();
+            case SPHERE -> atmosfera$environmentContexts.get(size);
         };
     }
 
     @Override
     public void atmosfera$updateEnvironmentContext() {
-        if (!this.atmosfera$initialized) {
+        if (!atmosfera$initialized) {
             ClientPlayerEntity player = MinecraftClient.getInstance().player;
-            this.atmosfera$environmentContexts = new EnumMap<>(Size.class);
-            this.atmosfera$environmentContexts.put(Size.SMALL,  new Sphere(Size.SMALL,  player));
-            this.atmosfera$environmentContexts.put(Size.MEDIUM, new Sphere(Size.MEDIUM, player));
-            this.atmosfera$environmentContexts.put(Size.LARGE,  new Sphere(Size.LARGE,  player));
+            atmosfera$environmentContexts = new EnumMap<>(Size.class);
+            atmosfera$environmentContexts.put(Size.SMALL,  new Sphere(Size.SMALL,  player));
+            atmosfera$environmentContexts.put(Size.MEDIUM, new Sphere(Size.MEDIUM, player));
+            atmosfera$environmentContexts.put(Size.LARGE,  new Sphere(Size.LARGE,  player));
             atmosfera$initialized = true;
         }
 
         if (--atmosfera$updateTimer <= 0 && ContextUtil.EXECUTOR.getQueue().isEmpty()) {
-            this.atmosfera$environmentContexts.get(Size.SMALL ).update();
-            this.atmosfera$environmentContexts.get(Size.MEDIUM).update();
-            this.atmosfera$environmentContexts.get(Size.LARGE ).update();
+            atmosfera$environmentContexts.get(Size.SMALL ).update();
+            atmosfera$environmentContexts.get(Size.MEDIUM).update();
+            atmosfera$environmentContexts.get(Size.LARGE ).update();
             atmosfera$updateTimer = 20;
         }
     }

@@ -10,12 +10,12 @@ public record AtmosphericSound(Identifier id, Identifier soundId,
                                EnvironmentContext.Shape shape, EnvironmentContext.Size size,
                                ImmutableCollection<AtmosphericSoundModifier> modifiers) {
     public float getVolume(ClientWorld world) {
-        float volume = 1;
-        var context = world.atmosfera$getEnvironmentContext(this.size, this.shape);
+        var context = world.atmosfera$getEnvironmentContext(size, shape);
         if (context == null)
             return 0;
 
-        for (AtmosphericSoundModifier modifier : this.modifiers) {
+        float volume = 1;
+        for (var modifier : modifiers) {
             volume *= modifier.getModifier(context);
         }
 

@@ -61,17 +61,17 @@ public class Atmosfera implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
-		FabricLoader.getInstance().getModContainer(MODID).ifPresent(modContainer -> {
-			ResourceManagerHelper.registerBuiltinResourcePack(id("dungeons"), modContainer, ResourcePackActivationType.DEFAULT_ENABLED);
-			ResourceLoader.get(ResourceType.CLIENT_RESOURCES).registerReloader(id("sound_deserializer"), new SoundDefinitionsReloader());
-		});
+		var modContainer = FabricLoader.getInstance().getModContainer(MODID).orElseThrow();
+
+		ResourceManagerHelper.registerBuiltinResourcePack(id("dungeons"), modContainer, ResourcePackActivationType.DEFAULT_ENABLED);
+		ResourceLoader.get(ResourceType.CLIENT_RESOURCES).registerReloader(id("sound_deserializer"), new SoundDefinitionsReloader());
 
 		EnvironmentContext.init();
 
 		log("Finished initialization.");
 	}
 
-	public static Identifier id(@NotNull String path, String... paths) {
-		return Identifier.of(MODID, path + (paths.length == 0 ? "" : "." + String.join(".", paths)));
+	public static Identifier id(@NotNull String path) {
+		return Identifier.of(MODID, path);
 	}
 }

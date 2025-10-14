@@ -6,10 +6,10 @@ import dev.hephaestus.atmosfera.world.context.EnvironmentContext;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
-public record ConfigModifier(Identifier sound) implements AtmosphericSoundModifier, AtmosphericSoundModifier.Factory {
+public record ConfigModifier(Identifier soundId) implements AtmosphericSoundModifier, AtmosphericSoundModifier.Factory {
     @Override
     public float getModifier(EnvironmentContext context) {
-        return AtmosferaConfig.volumeModifier(this.sound);
+        return AtmosferaConfig.volumeModifier(soundId);
     }
 
     @Override

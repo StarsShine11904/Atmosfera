@@ -76,25 +76,25 @@ public class SoundDefinitionsReloader implements SynchronousResourceReloader {
     }
 
     private static ImmutableCollection<AtmosphericSoundModifier.Factory> getModifiers(JsonObject json, Identifier id) {
-        ImmutableCollection.Builder<AtmosphericSoundModifier.Factory> modifiers = ImmutableList.builder();
+        var modifiers = ImmutableList.<AtmosphericSoundModifier.Factory>builder();
 
         modifiers.add(new ConfigModifier(id));
 
         if (json.has("modifiers")) {
             for (JsonElement element : json.get("modifiers").getAsJsonArray()) {
-                JsonObject modifier = element.getAsJsonObject();
+                JsonObject modifierJson = element.getAsJsonObject();
 
-                if (!modifier.has("type")) {
+                if (!modifierJson.has("type")) {
                     throw new RuntimeException("Modifier for sound definition '%s' is missing \"type\" field.".formatted(id));
                 }
 
-                String type = modifier.get("type").getAsString();
-                AtmosphericSoundModifier.FactoryFactory factory = AtmosphericSoundModifierRegistry.get(type);
+                String type = modifierJson.get("type").getAsString();
+                var factory = AtmosphericSoundModifierRegistry.get(type);
 
                 if (factory == null) {
                     Atmosfera.warn("Modifier type \"{}\" does not exist", type);
                 } else {
-                    modifiers.add(factory.create(modifier));
+                    modifiers.add(factory.create(modifierJson));
                 }
             }
         }

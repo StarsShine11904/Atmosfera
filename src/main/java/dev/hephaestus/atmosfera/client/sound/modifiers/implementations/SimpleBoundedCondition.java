@@ -15,7 +15,7 @@ import static dev.hephaestus.atmosfera.client.sound.modifiers.CommonAttributes.g
 public record SimpleBoundedCondition(Range range, Bound bound, Function<EnvironmentContext, Number> valueGetter) implements AtmosphericSoundModifier, AtmosphericSoundModifier.Factory {
     @Override
     public float getModifier(EnvironmentContext context) {
-        float value = this.valueGetter.apply(context).floatValue();
+        float value = valueGetter.apply(context).floatValue();
 
         return range.apply(bound.apply(value));
     }
@@ -38,8 +38,8 @@ public record SimpleBoundedCondition(Range range, Bound bound, Function<Environm
     }
 
     public static SimpleBoundedCondition create(JsonObject object, Function<EnvironmentContext, Number> valueGetter) {
-        Range range = getRange(object);
-        Bound bound = getBound(object);
+        var range = getRange(object);
+        var bound = getBound(object);
 
         return new SimpleBoundedCondition(range, bound, valueGetter);
     }
