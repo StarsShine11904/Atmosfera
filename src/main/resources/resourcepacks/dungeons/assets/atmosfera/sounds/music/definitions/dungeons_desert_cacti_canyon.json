@@ -8,6 +8,9 @@
       "type": "percent_biome",
       "min": 0.75,
       "biomes": [
+        "#c:is_badlands",
+        "#is_badlands",
+        "#c:is_desert",
         "#desert",
         "#mesa",
         "minecraft:badlands",

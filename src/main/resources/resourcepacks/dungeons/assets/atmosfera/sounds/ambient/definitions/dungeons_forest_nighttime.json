@@ -9,6 +9,8 @@
       "type": "percent_biome",
       "min": 0.1,
       "biomes": [
+        "#c:is_forest",
+        "#is_forest",
         "#forest",
         "minecraft:birch_forest",
         "minecraft:birch_forest_hills",

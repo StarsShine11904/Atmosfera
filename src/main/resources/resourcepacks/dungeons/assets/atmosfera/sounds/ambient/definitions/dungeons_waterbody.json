@@ -19,6 +19,8 @@
       "type": "percent_biome",
       "min": 0.5,
       "biomes": [
+        "#c:is_ocean",
+        "#is_ocean",
         "#ocean",
         "minecraft:cold_ocean",
         "minecraft:deep_cold_ocean",
