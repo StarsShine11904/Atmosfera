@@ -32,7 +32,7 @@ public class AtmosphericSoundHandler {
     public AtmosphericSoundHandler(ClientWorld world) {
         this.sounds = getSoundsFromDefinitions(Atmosfera.SOUND_DEFINITIONS, world);
         this.musics = getSoundsFromDefinitions(Atmosfera.MUSIC_DEFINITIONS, world);
-            }
+    }
 
     private static ImmutableList<AtmosphericSound> getSoundsFromDefinitions(Map<Identifier, AtmosphericSoundDefinition> definitions, ClientWorld world) {
         var sounds = ImmutableList.<AtmosphericSound>builder();
@@ -56,7 +56,7 @@ public class AtmosphericSoundHandler {
         if (world == null)
             return;
 
-            world.atmosfera$updateEnvironmentContext();
+        world.atmosfera$updateEnvironmentContext();
 
         playingSounds.values().removeIf(AtmosphericSoundInstance::isDone);
 
@@ -66,15 +66,15 @@ public class AtmosphericSoundHandler {
 
             float volume = sound.getVolume(world);
 
-                    // The non-zero volume prevents the events getting triggered multiple times at volumes near zero.
-                    if (volume >= 0.0125 && client.options.getSoundVolume(SoundCategory.AMBIENT) > 0) {
+            // The non-zero volume prevents the events getting triggered multiple times at volumes near zero.
+            if (volume >= 0.0125 && client.options.getSoundVolume(SoundCategory.AMBIENT) > 0) {
                 var soundInstance = new AtmosphericSoundInstance(sound, 0.0001f);
                 playingSounds.put(sound, soundInstance);
                 client.getSoundManager().playNextTick(soundInstance);
                 Atmosfera.debug("volume > 0: {} - {}", sound.id(), volume);
-                    }
-                }
             }
+        }
+    }
 
     @SuppressWarnings("DataFlowIssue")
     public MusicSound getMusicSound(MusicSound original) {
@@ -101,22 +101,22 @@ public class AtmosphericSoundHandler {
                 candidates.add(new Pair<>(weight, MUSIC.computeIfAbsent(music, id -> {
                     Atmosfera.debug("createIngameMusic: {}", music.id());
                     return MusicType.createIngameMusic(RegistryEntry.of(SoundEvent.of(music.soundId())));
-                    })));
+                })));
 
-                    total += weight;
-                }
+                total += weight;
             }
+        }
 
-            float i = total <= 0 ? 0 : RANDOM.nextFloat() * total;
+        float i = total <= 0 ? 0 : RANDOM.nextFloat() * total;
 
         for (Pair<Float, MusicSound> pair : candidates) {
-                i -= pair.getLeft();
+            i -= pair.getLeft();
 
-                if (i < 0)
-                    return pair.getRight();
-            }
-
-            // due to float imprecision, i might not have fallen below 0, count this towards the last element
-        return candidates.getLast().getRight();
+            if (i < 0)
+                return pair.getRight();
         }
+
+        // due to float imprecision, i might not have fallen below 0, count this towards the last element
+        return candidates.getLast().getRight();
+    }
 }
