@@ -17,7 +17,7 @@
 package dev.hephaestus.atmosfera;
 
 import dev.hephaestus.atmosfera.client.sound.AtmosphericSoundDefinition;
-import dev.hephaestus.atmosfera.client.sound.AtmosphericSoundSerializer;
+import dev.hephaestus.atmosfera.client.sound.SoundDefinitionsReloader;
 import dev.hephaestus.atmosfera.world.context.EnvironmentContext;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
@@ -60,21 +60,17 @@ public class Atmosfera implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
-		FabricLoader.getInstance().getModContainer(MODID).ifPresent(modContainer -> {
-			ResourceManagerHelper.registerBuiltinResourcePack(id("dungeons"), modContainer, ResourcePackActivationType.DEFAULT_ENABLED);
+		var modContainer = FabricLoader.getInstance().getModContainer(MODID).orElseThrow();
 
-			ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(
-					new AtmosphericSoundSerializer("sounds/ambient", SOUND_DEFINITIONS));
-			ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(
-					new AtmosphericSoundSerializer("sounds/music", MUSIC_DEFINITIONS));
-		});
+		ResourceManagerHelper.registerBuiltinResourcePack(id("dungeons"), modContainer, ResourcePackActivationType.DEFAULT_ENABLED);
+		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new SoundDefinitionsReloader());
 
 		EnvironmentContext.init();
 
 		log("Finished initialization.");
 	}
 
-	public static Identifier id(@NotNull String path, String... paths) {
-		return new Identifier(MODID, path + (paths.length == 0 ? "" : "." + String.join(".", paths)));
+	public static Identifier id(@NotNull String path) {
+		return new Identifier(MODID, path);
 	}
 }

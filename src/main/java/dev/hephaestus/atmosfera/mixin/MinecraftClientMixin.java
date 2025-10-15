@@ -39,8 +39,8 @@ public class MinecraftClientMixin {
 		if (!AtmosferaConfig.enableCustomMusic())
 			return original;
 
-		if (original != MusicType.MENU && original != MusicType.CREDITS && this.world != null) {
-			return this.world.atmosfera$getAtmosphericSoundHandler().getMusicSound(original);
+		if (original != MusicType.MENU && original != MusicType.CREDITS && world != null) {
+			return world.atmosfera$getAtmosphericSoundHandler().getMusicSound(original);
 		}
 
 		return original;

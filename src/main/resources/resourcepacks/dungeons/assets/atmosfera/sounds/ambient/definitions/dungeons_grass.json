@@ -9,8 +9,9 @@
       "type": "percent_block",
       "blocks": [
         "minecraft:grass",
-        "minecraft:sugar_cane",
+        "minecraft:short_grass",
         "minecraft:tall_grass",
+        "minecraft:sugar_cane",
         "minecraft:wheat",
         "biomemakeover:cattail",
         "biomemakeover:reed",

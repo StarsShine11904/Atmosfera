@@ -9,7 +9,10 @@
       "type": "percent_biome",
       "min": 0.1,
       "biomes": [
+        "#c:is_plains",
         "#plains",
+        "#c:is_savanna",
+        "#is_savanna",
         "#savanna",
         "minecraft:plains",
         "minecraft:savanna",
