@@ -2,7 +2,7 @@
 
 This update addresses many issues with Atmospheric Resource Packs:
 
-- added [documentation](https://github.com/Haven-King/Atmosfera/blob/1.21.9/documentation.md) for how to create your own Atmospheric Resource Packs!
+- added [documentation](https://github.com/Haven-King/Atmosfera/blob/main/documentation.md) for how to create your own Atmospheric Resource Packs!
 - fix `"min"` and `"max"` not doing anything for many modifiers like `"percent_biome"` and bounded modifiers (the irony...)
 - add `"range"` to all bounded modifiers
 - fix `"default_volume"` and `"default_subtitle"` not being read or used
