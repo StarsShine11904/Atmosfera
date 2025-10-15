@@ -43,9 +43,9 @@ public class WeightedSoundSetMixin {
 
     @Inject(method = "getSubtitle", at = @At("HEAD"), cancellable = true)
     public void atmosfera$disableSubtitle(CallbackInfoReturnable<Text> cir) {
-        if (Atmosfera.SOUND_DEFINITIONS.containsKey(this.id) && !AtmosferaConfig.showSubtitle(this.id)) {
+        if (Atmosfera.SOUND_DEFINITIONS.containsKey(id) && !AtmosferaConfig.showSubtitle(id)) {
             if (AtmosferaConfig.printDebugMessages()) {
-                Atmosfera.log("Mixin disableSubtitle: {} - {}", this.id, AtmosferaConfig.showSubtitle(this.id));
+                Atmosfera.log("Mixin disableSubtitle: {} - {}", id, AtmosferaConfig.showSubtitle(id));
             }
 
             cir.setReturnValue(null);

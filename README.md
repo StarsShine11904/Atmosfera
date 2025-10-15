@@ -3,34 +3,42 @@
 [![Mod Loader: Fabric](https://img.shields.io/badge/modloader-Fabric-deaa6a?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAFHGlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDIgNzkuMTYwOTI0LCAyMDE3LzA3LzEzLTAxOjA2OjM5ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ0MgMjAxOCAoV2luZG93cykiIHhtcDpDcmVhdGVEYXRlPSIyMDE4LTEyLTE2VDE2OjU0OjE3LTA4OjAwIiB4bXA6TW9kaWZ5RGF0ZT0iMjAxOS0wNy0yOFQyMToxNzo0OC0wNzowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAxOS0wNy0yOFQyMToxNzo0OC0wNzowMCIgZGM6Zm9ybWF0PSJpbWFnZS9wbmciIHBob3Rvc2hvcDpDb2xvck1vZGU9IjMiIHBob3Rvc2hvcDpJQ0NQcm9maWxlPSJzUkdCIElFQzYxOTY2LTIuMSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDowZWRiMWMyYy1mZjhjLWU0NDEtOTMxZi00OTVkNGYxNGM3NjAiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6MGVkYjFjMmMtZmY4Yy1lNDQxLTkzMWYtNDk1ZDRmMTRjNzYwIiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6MGVkYjFjMmMtZmY4Yy1lNDQxLTkzMWYtNDk1ZDRmMTRjNzYwIj4gPHhtcE1NOkhpc3Rvcnk+IDxyZGY6U2VxPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0iY3JlYXRlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDowZWRiMWMyYy1mZjhjLWU0NDEtOTMxZi00OTVkNGYxNGM3NjAiIHN0RXZ0OndoZW49IjIwMTgtMTItMTZUMTY6NTQ6MTctMDg6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCBDQyAyMDE4IChXaW5kb3dzKSIvPiA8L3JkZjpTZXE+IDwveG1wTU06SGlzdG9yeT4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4/HiGMAAAAtUlEQVRYw+XXrQqAMBQF4D2P2eBL+QIG8RnEJFaNBjEum+0+zMQLtwwv+wV3ZzhhMDgfJ0wUSinxZUQWgKos1JP/AbD4OneIDyQPwCFniA+EJ4CaXm4TxAXCC0BNHgLhAdAnx9hC8PwGSRtAFVMQjF7cNTWED8B1cgwW20yfJgAvrssAsZ1cB3g/xckAxr6FmCDU5N6f488BrpCQ4rQBJkiMYh4ACmLzwOQF0CExinkCsvw7vgGikl+OotaKRwAAAABJRU5ErkJggg==)](https://fabricmc.net/) 
 ![Environment: Client](https://img.shields.io/badge/environment-client-blue) 
 ![Git Tag](https://img.shields.io/github/tag/Haven-King/Atmosfera) 
-[![GitHub Release](https://img.shields.io/github/v/release/Haven-King/Atmosfera)](https://github.com/Haven-King/Atmosfera/releases) 
 [![CurseForge](https://img.shields.io/badge/curseforge-Atmosfera-f16436?logo=curseforge)](https://www.curseforge.com/minecraft/mc-mods/atmosfera)
+[![Modrinth](https://img.shields.io/badge/modrinth-Atmosfera-00af5c?logo=modrinth)](https://modrinth.com/mod/atmosfera)
 
 **Atmosfera** is a client-side ambient sound system with customizable, atmospheric sound resources for Minecraft [Fabric].
 
+## Installation
+* [Install Fabric Loader], the [Fabric API] and [Cloth Config], probably [Mod Menu], and of course **Atmosfera**.
+* **Activate the [built-in](#atmosfera-resource-packs) or a custom Atmosfera resource pack!**
+
+
+* [Presence Footsteps] is suggested to enhance the sound experience.
+* Similar ambient sound mods or data packs are not recommended to be used together with **Atmosfera** since the soundscapes might conflict.
+
 ## Features
 ### The Atmosfera System
-* The client-side environment allows users to run the mod even on Vanilla servers.
-* The system provides a dynamic 2D soundscape depending on several conditions and modifiers within a sphere/hemisphere around the player:
+* The client-side nature allows it to be used even on Vanilla servers.
+* It provides dynamic soundscape depending on several conditions and modifiers within a sphere/hemisphere around the player:
   * Dimension,
   * Distance from the ground,
   * Height,
   * Percentage of biomes,
   * Percentage of blocks,
-  * Percentage of the sky visibility,
+  * Percentage of sky visibility,
   * Period of the day,
   * Rainy weather,
   * Stormy weather,
-  * Submerged in a fluid.
-* The playback uses smooth loops and transitions.
-* Settings powered by [Cloth Config API] for volumes and subtitles can be configured with or without [Mod Menu].
-* Sound files and events are stored as resources allowing users to customize and create their own **Atmosfera** resource packs.
+* Playback uses smooth transitions.
+* [Cloth Config] settings for volumes and subtitles can be configured with or without [Mod Menu].
+* Sound files and events are stored as resources allowing users to customize and create their own **Atmosfera** resource packs.  
+  For information on that, check out the [documentation](./documentation.md)!
 
-### The Atmosfera Resources
-The sound events of both built-in packs [support](#supported) the blocks and biomes of various world generation mods.
+### Atmosfera Resource Packs
 
-#### Dungeons
-* The pack provides a selection of assets from [Minecraft Dungeons] for a more suitable and immersive ambience.
+#### Dungeons (built-in)
+* The pack provides a selection of assets from [Minecraft Dungeons] for a more immersive ambience.
+* It [supports](#supported-biome-mods) the blocks and biomes of various world generation mods.
 * The ambient soundscape consists of 28 events with 65 sounds:
   * Cave: Cave echoes
   * Cave - Speleothems: Water drips in the cave
@@ -69,53 +77,23 @@ The sound events of both built-in packs [support](#supported) the blocks and bio
   * Snowy - Lost Settlement
   * Swamp - Soggy Cave
 
-#### Legacy (Deprecated)
-* The pack, to be archived, contains the old assets of **Atmosfera** and might be removed in a future release.
-* The soundscape consists of 14 ambient sound events with 34 sounds:
-  * Desert (Daytime): The desert hums
-  * Desert (Nighttime): The desert hums
-  * Grass: Wind blows through the tall grass
-  * Jungle: The jungle buzzes with life
-  * Leaves: Wind rustles the nearby leaves
-  * Ocean: The ocean laps and pulls
-  * Plains (Daytime): Birds and insects fill the air
-  * Plains (Nighttime): Crickets chirp in the grass
-  * River: A river rushes nearby
-  * Swamp (Daytime): Birds and insects fill the air
-  * Swamp (Nighttime): Frogs and insects cause a commotion
-  * Swamp (Rainy): Frogs and insects cause a commotion
-  * Waves: Waves crash along the shore
-  * Wind: The wind whips around you
+#### Supported Biome Mods
 
-## Compatibility
-### Dependency
-* The [Fabric] Mod Loader, [Fabric API] and [Cloth Config API] are **required** to install and use **Atmosfera**.
-* [Mod Menu] is **recommended** to be able to configure the settings with a graphical user interface.
-* [Presence Footsteps] is **suggested** to enhance the sound experience.
-* Similar ambient sound mods or data packs are **not recommended** to be used together with **Atmosfera** since the soundscapes might conflict.
+- [Biome Makeover]
+- [Ecotones]
+- [Lakeside]
+- [Oh The Biomes You'll Go]
+- [Promenade]
+- [River Redux]
+- [Sakura Rosea]
+- [Terrestria]
+- [Traverse]
+- [Vanilla Enhanced]
+- [Vanilla+ Biomes]
+- [Wild World]
+- [Woods and Mires]
 
-### Supported
-| Mod | Minecraft 1.16.5 | Minecraft 1.17 |
-| --- | :--------------: | :---: |
-| [Biome Makeover] | ✓ | ✓ |
-| [Ecotones] | ✓ | ✓ |
-| [Lakeside] | ✓ | ✓ |
-| [Oh The Biomes You'll Go] | ✓ | ✓ |
-| [Promenade] | ✓ | ✓ |
-| [River Redux] | ✓ | ✓ |
-| [Sakura Rosea] | ✓ | ✓ |
-| [Terrestria] | ✓ | ✓ |
-| [Traverse] | ✓ | ✓ |
-| [Vanilla Enhanced] | ✓ | ✓ |
-| [Vanilla+ Biomes] | ✓ | ✓ |
-| [Wild World] | ✓ | ✓ |
-| [Woods and Mires] | ✓ | ✓ |
-|  | **[atmosfera-1.4.0+mc1.16.5]** | **[atmosfera-1.4.0+mc1.17]** |
-
-## Installation
-* Follow the instructions on the [Fabric Wiki] to install the [requirements](#dependency) and **Atmosfera**.
-* The **Atmosfera** builds, as JAR files, can be downloaded from the [Releases] tab of the GitHub repository or the [CurseForge] page. [Avoid the suspicious mod reposting websites].
-* Activate the [built-in](#the-atmosfera-resources) or a custom **Atmosfera** resource pack.
+Note: This was last verified for Minecraft 1.17 but should still be largely compatible with newer versions.
 
 ## Caveats and Known Issues
 * The built-in resource pack cannot be enabled by default. ([ResourcePackActivationType](https://github.com/FabricMC/fabric/blob/1.16/fabric-resource-loader-v0/src/main/java/net/fabricmc/fabric/api/resource/ResourcePackActivationType.java#L30))
@@ -125,7 +103,7 @@ The sound events of both built-in packs [support](#supported) the blocks and bio
 Use the [Issues] tab of the GitHub repository for reports and requests.
 
 ## Changelog
-See the [Changelog] markdown file.
+See the [Changelog] and more recent (version dependent) [changes] markdown files.
 
 ## Credits
 See the [Credits] markdown file.
@@ -138,18 +116,18 @@ Users are permitted to use **Atmosfera** in any medium and modpack if an appropr
 
 [//]: # (Reference Links)
 [Apache License 2.0]: ./LICENSE
-[atmosfera-1.4.0+mc1.16.5]: https://github.com/Haven-King/Atmosfera/releases
-[atmosfera-1.4.0+mc1.17]: https://github.com/Haven-King/Atmosfera/releases
 [Biome Makeover]: https://www.curseforge.com/minecraft/mc-mods/biome-makeover
 [Changelog]: ./CHANGELOG.md
-[Cloth Config API]: https://www.curseforge.com/minecraft/mc-mods/cloth-config
+[changes]: ./changes.md
+[Cloth Config]: https://www.curseforge.com/minecraft/mc-mods/cloth-config
 [Credits]: ./CREDITS.md
 [CurseForge]: https://www.curseforge.com/minecraft/mc-mods/atmosfera
+[Modrinth]: https://modrinth.com/mod/atmosfera
 [Avoid the suspicious mod reposting websites]: https://stopmodreposts.org/
 [Ecotones]: https://www.curseforge.com/minecraft/mc-mods/ecotones
 [Fabric]: https://fabricmc.net/use/
 [Fabric API]: https://www.curseforge.com/minecraft/mc-mods/fabric-api
-[Fabric Wiki]: https://fabricmc.net/wiki/start
+[Install Fabric Loader]: https://docs.fabricmc.net/players/installing-fabric
 [Issues]: https://github.com/Haven-King/Atmosfera/issues
 [Lakeside]: https://www.curseforge.com/minecraft/mc-mods/lakeside
 [Minecraft Dungeons]: https://minecraft.fandom.com/wiki/Minecraft_Dungeons
