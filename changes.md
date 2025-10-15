@@ -1,3 +1,15 @@
+## 2.4.0
+
+This update addresses many issues with Atmospheric Resource Packs:
+
+- added [documentation](https://github.com/Haven-King/Atmosfera/blob/1.21.9/documentation.md) for how to create your own Atmospheric Resource Packs!
+- fix `"min"` and `"max"` not doing anything for many modifiers like `"percent_biome"` and bounded modifiers (the irony...)
+- add `"range"` to all bounded modifiers
+- fix `"default_volume"` and `"default_subtitle"` not being read or used
+- some modifiers had alternative type names which have now been removed
+- the internal "Dungeons" Atmospheric Resource Packs has been updated to use newer blocks, biomes and tags, including common "c" tags, which should improve modded biome detection
+- config logic has partially been rewritten
+
 ## 2.3.1
 
 - adjust thread pool for environment context update

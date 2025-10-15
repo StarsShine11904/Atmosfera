@@ -9,6 +9,8 @@
       "type": "percent_biome",
       "min": 0.0,
       "biomes": [
+        "#c:is_beach",
+        "#is_beach",
         "#beach",
         "minecraft:beach",
         "minecraft:snowy_beach",

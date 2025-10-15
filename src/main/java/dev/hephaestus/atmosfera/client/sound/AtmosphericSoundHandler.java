@@ -1,120 +1,122 @@
 package dev.hephaestus.atmosfera.client.sound;
 
-import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import dev.hephaestus.atmosfera.Atmosfera;
 import dev.hephaestus.atmosfera.AtmosferaConfig;
 import dev.hephaestus.atmosfera.client.sound.modifiers.AtmosphericSoundModifier;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.sound.SoundManager;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.sound.MusicSound;
 import net.minecraft.sound.MusicType;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.random.Random;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class AtmosphericSoundHandler {
     private static final Random RANDOM = Random.create();
 
     private static final Map<AtmosphericSound, MusicSound> MUSIC = new HashMap<>();
 
-    private final Collection<AtmosphericSound> sounds = new ArrayList<>();
-    private final Collection<AtmosphericSound> musics = new ArrayList<>();
-    private final Map<AtmosphericSound, AtmosphericSoundInstance> soundInstances = new WeakHashMap<>();
+    private final ImmutableList<AtmosphericSound> sounds;
+    private final ImmutableList<AtmosphericSound> musics;
+    private final Map<AtmosphericSound, AtmosphericSoundInstance> playingSounds = new HashMap<>();
 
     public AtmosphericSoundHandler(ClientWorld world) {
-        for (AtmosphericSoundDefinition definition : Atmosfera.SOUND_DEFINITIONS.values()) {
-            ImmutableCollection.Builder<AtmosphericSoundModifier> modifiers = ImmutableList.builder();
+        this.sounds = getSoundsFromDefinitions(Atmosfera.SOUND_DEFINITIONS, world);
+        this.musics = getSoundsFromDefinitions(Atmosfera.MUSIC_DEFINITIONS, world);
+    }
 
-            for (AtmosphericSoundModifier.Factory factory : definition.modifiers()) {
+    private static ImmutableList<AtmosphericSound> getSoundsFromDefinitions(Map<Identifier, AtmosphericSoundDefinition> definitions, ClientWorld world) {
+        var sounds = ImmutableList.<AtmosphericSound>builder();
+
+        for (var definition : definitions.values()) {
+            var modifiers = ImmutableList.<AtmosphericSoundModifier>builder();
+
+            for (var factory : definition.modifierFactories()) {
                 modifiers.add(factory.create(world));
             }
 
-            this.sounds.add(new AtmosphericSound(definition.id(), definition.soundId(), definition.shape(), definition.size(), definition.defaultVolume(), definition.hasSubtitleByDefault(), modifiers.build()));
+            sounds.add(new AtmosphericSound(definition.id(), definition.soundId(), definition.shape(), definition.size(), modifiers.build()));
         }
 
-        for (AtmosphericSoundDefinition definition : Atmosfera.MUSIC_DEFINITIONS.values()) {
-            ImmutableCollection.Builder<AtmosphericSoundModifier> modifiers = ImmutableList.builder();
-
-            for (AtmosphericSoundModifier.Factory factory : definition.modifiers()) {
-                modifiers.add(factory.create(world));
-            }
-
-            this.musics.add(new AtmosphericSound(definition.id(), definition.soundId(), definition.shape(), definition.size(), definition.defaultVolume(), definition.hasSubtitleByDefault(), modifiers.build()));
-        }
+        return sounds.build();
     }
 
     public void tick() {
-        MinecraftClient client = MinecraftClient.getInstance();
-        ClientWorld world = client.world;
+        var client = MinecraftClient.getInstance();
+        var world = client.world;
+        if (world == null)
+            return;
 
-        if (world != null) {
-            SoundManager soundManager = client.getSoundManager();
+        world.atmosfera$updateEnvironmentContext();
 
-            world.atmosfera$updateEnvironmentContext();
+        playingSounds.values().removeIf(AtmosphericSoundInstance::isDone);
 
-            for (AtmosphericSound definition : this.sounds) {
-                if (!this.soundInstances.containsKey(definition) || this.soundInstances.get(definition).isDone()) {
-                    float volume = definition.getVolume(world);
+        for (var sound : sounds) {
+            if (playingSounds.containsKey(sound))
+                continue;
 
-                    // The non-zero volume prevents the events getting triggered multiple times at volumes near zero.
-                    if (volume >= 0.0125 && client.options.getSoundVolume(SoundCategory.AMBIENT) > 0) {
-                        AtmosphericSoundInstance soundInstance = new AtmosphericSoundInstance(definition, 0.0001F);
-                        this.soundInstances.put(definition, soundInstance);
-                        soundManager.playNextTick(soundInstance);
-                        Atmosfera.debug("volume > 0: {} - {}", definition.id(), volume);
-                    }
-                }
+            float volume = sound.getVolume(world);
+
+            // The non-zero volume prevents the events getting triggered multiple times at volumes near zero.
+            if (volume >= 0.0125 && client.options.getSoundVolume(SoundCategory.AMBIENT) > 0) {
+                var soundInstance = new AtmosphericSoundInstance(sound, 0.0001f);
+                playingSounds.put(sound, soundInstance);
+                client.getSoundManager().playNextTick(soundInstance);
+                Atmosfera.debug("volume > 0: {} - {}", sound.id(), volume);
             }
         }
-
-        this.soundInstances.values().removeIf(AtmosphericSoundInstance::isDone);
     }
 
-    public MusicSound getMusicSound(MusicSound defaultSound) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        ClientWorld world = client.world;
+    @SuppressWarnings("DataFlowIssue")
+    public MusicSound getMusicSound(MusicSound original) {
+        var client = MinecraftClient.getInstance();
+        var world = client.world;
+        if (world == null || !world.atmosfera$isEnvironmentContextInitialized() || client.options.getSoundVolume(SoundCategory.MUSIC) == 0)
+            return original;
 
-        if (world != null && client.options.getSoundVolume(SoundCategory.MUSIC) > 0 && client.player != null && world.atmosfera$isEnvironmentContextInitialized()) {
-            SoundManager soundManager = client.getSoundManager();
-            float total = Objects.requireNonNull(soundManager.get(defaultSound.sound().value().id())).getWeight();
+        var soundManager = client.getSoundManager();
+        float originalWeight = soundManager.get(original.sound().value().id()).getWeight(); // TODO soundManager.get() returns null with Music Control...?!
 
-            List<Pair<Float, MusicSound>> sounds = new ArrayList<>();
-            sounds.add(new Pair<>(total, defaultSound));
+        List<Pair<Float, MusicSound>> candidates = new ArrayList<>();
+        float total = 0;
 
-            for (AtmosphericSound definition : this.musics) {
-                float volume = definition.getVolume(world);
+        candidates.add(new Pair<>(originalWeight, original));
+        total += originalWeight;
 
-                if (volume > 0.0125) {
-                    float weight = AtmosferaConfig.customMusicWeightScale() * Objects.requireNonNull(soundManager.get(definition.soundId())).getWeight();
+        for (var music : musics) {
+            float volume = music.getVolume(world);
 
-                    sounds.add(new Pair<>(weight, MUSIC.computeIfAbsent(definition, id -> {
-                        Atmosfera.debug("createIngameMusic: {}", definition.id());
-                        return MusicType.createIngameMusic(RegistryEntry.of(SoundEvent.of(definition.soundId())));
-                    })));
+            if (volume >= 0.0125) {
+                float weight = AtmosferaConfig.customMusicWeightScale() * soundManager.get(music.soundId()).getWeight();
 
-                    total += weight;
-                }
+                candidates.add(new Pair<>(weight, MUSIC.computeIfAbsent(music, id -> {
+                    Atmosfera.debug("createIngameMusic: {}", music.id());
+                    return MusicType.createIngameMusic(RegistryEntry.of(SoundEvent.of(music.soundId())));
+                })));
+
+                total += weight;
             }
-
-            float i = total <= 0 ? 0 : RANDOM.nextFloat() * total;
-
-            for (Pair<Float, MusicSound> pair : sounds) {
-                i -= pair.getLeft();
-
-                if (i < 0)
-                    return pair.getRight();
-            }
-
-            // due to float imprecision, i might not have fallen below 0, count this towards the last element
-            return sounds.getLast().getRight();
         }
 
-        return defaultSound;
+        float i = total <= 0 ? 0 : RANDOM.nextFloat() * total;
+
+        for (Pair<Float, MusicSound> pair : candidates) {
+            i -= pair.getLeft();
+
+            if (i < 0)
+                return pair.getRight();
+        }
+
+        // due to float imprecision, i might not have fallen below 0, count this towards the last element
+        return candidates.getLast().getRight();
     }
 }
