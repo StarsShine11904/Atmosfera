@@ -8,10 +8,9 @@ import net.minecraft.world.World;
 import java.util.function.Function;
 
 public record SimpleBooleanCondition(boolean expectedValue, Function<EnvironmentContext, Boolean> valueGetter) implements AtmosphericSoundModifier, AtmosphericSoundModifier.Factory {
-
     @Override
     public float getModifier(EnvironmentContext context) {
-        return this.valueGetter.apply(context) == this.expectedValue ? 1 : 0;
+        return valueGetter.apply(context) == this.expectedValue ? 1 : 0;
     }
 
     @Override

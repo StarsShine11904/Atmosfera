@@ -1,20 +1,23 @@
 package dev.hephaestus.atmosfera.client.sound.modifiers.implementations;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.hephaestus.atmosfera.client.sound.modifiers.AtmosphericSoundModifier;
+import dev.hephaestus.atmosfera.client.sound.modifiers.CommonAttributes.Bound;
+import dev.hephaestus.atmosfera.client.sound.modifiers.CommonAttributes.Range;
 import dev.hephaestus.atmosfera.world.context.EnvironmentContext;
-import net.minecraft.util.JsonHelper;
 import net.minecraft.world.World;
 
 import java.util.function.Function;
 
-public record SimpleBoundedCondition(float min, float max, Function<EnvironmentContext, Number> valueGetter) implements AtmosphericSoundModifier, AtmosphericSoundModifier.Factory {
+import static dev.hephaestus.atmosfera.client.sound.modifiers.CommonAttributes.getBound;
+import static dev.hephaestus.atmosfera.client.sound.modifiers.CommonAttributes.getRange;
+
+public record SimpleBoundedCondition(Range range, Bound bound, Function<EnvironmentContext, Number> valueGetter) implements AtmosphericSoundModifier, AtmosphericSoundModifier.Factory {
     @Override
     public float getModifier(EnvironmentContext context) {
-        float value = this.valueGetter.apply(context).floatValue();
+        float value = valueGetter.apply(context).floatValue();
 
-        return value > this.min && value <= this.max ? 1 : 0;
+        return range.apply(bound.apply(value));
     }
 
     @Override
@@ -22,24 +25,22 @@ public record SimpleBoundedCondition(float min, float max, Function<EnvironmentC
         return this;
     }
 
-    public static SimpleBoundedCondition altitude(JsonElement element) {
-        return create(element, EnvironmentContext::getAltitude);
+    public static SimpleBoundedCondition altitude(JsonObject object) {
+        return create(object, EnvironmentContext::getAltitude);
     }
 
-    public static SimpleBoundedCondition elevation(JsonElement element) {
-        return create(element, EnvironmentContext::getElevation);
+    public static SimpleBoundedCondition elevation(JsonObject object) {
+        return create(object, EnvironmentContext::getElevation);
     }
 
-    public static SimpleBoundedCondition skyVisibility(JsonElement element) {
-        return create(element, EnvironmentContext::getSkyVisibility);
+    public static SimpleBoundedCondition skyVisibility(JsonObject object) {
+        return create(object, EnvironmentContext::getSkyVisibility);
     }
 
-    public static SimpleBoundedCondition create(JsonElement element, Function<EnvironmentContext, Number> valueGetter) {
-        JsonObject object = element.getAsJsonObject();
+    public static SimpleBoundedCondition create(JsonObject object, Function<EnvironmentContext, Number> valueGetter) {
+        var range = getRange(object);
+        var bound = getBound(object);
 
-        float min = object.has("lowerVolumeSlider") ? JsonHelper.getFloat(object, "lowerVolumeSlider") : -Float.MAX_VALUE;
-        float max = object.has("upperVolumeSlider") ? JsonHelper.getFloat(object, "upperVolumeSlider") : Float.MAX_VALUE;
-
-        return new SimpleBoundedCondition(min, max, valueGetter);
+        return new SimpleBoundedCondition(range, bound, valueGetter);
     }
 }
