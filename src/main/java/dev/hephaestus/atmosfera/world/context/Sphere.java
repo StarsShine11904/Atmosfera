@@ -5,10 +5,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.hud.BossBarHud;
 import net.minecraft.client.gui.hud.ClientBossBar;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.entity.boss.BossBar;
 import net.minecraft.tag.TagKey;
 import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.math.BlockPos;
@@ -34,27 +32,27 @@ public class Sphere extends AbstractEnvironmentContext {
 
     @Override
     public float getBlockTypePercentage(Block block) {
-        return (this.upperHemisphere.getBlockTypePercentage(block) + this.lowerHemisphere.getBlockTypePercentage(block)) / 2F;
+        return (upperHemisphere.getBlockTypePercentage(block) + lowerHemisphere.getBlockTypePercentage(block)) / 2F;
     }
 
     @Override
     public float getBlockTagPercentage(TagKey<Block> blocks) {
-        return (this.upperHemisphere.getBlockTagPercentage(blocks) + this.lowerHemisphere.getBlockTagPercentage(blocks)) / 2F;
+        return (upperHemisphere.getBlockTagPercentage(blocks) + lowerHemisphere.getBlockTagPercentage(blocks)) / 2F;
     }
 
     @Override
     public float getBiomePercentage(Biome biome) {
-        return (this.upperHemisphere.getBiomePercentage(biome) + this.lowerHemisphere.getBiomePercentage(biome)) / 2F;
+        return (upperHemisphere.getBiomePercentage(biome) + lowerHemisphere.getBiomePercentage(biome)) / 2F;
     }
 
     @Override
     public float getBiomeTagPercentage(TagKey<Biome> biomes) {
-        return (this.upperHemisphere.getBiomeTagPercentage(biomes) + this.lowerHemisphere.getBiomeTagPercentage(biomes)) / 2F;
+        return (upperHemisphere.getBiomeTagPercentage(biomes) + lowerHemisphere.getBiomeTagPercentage(biomes)) / 2F;
     }
 
     @Override
     public float getSkyVisibility() {
-        return (this.upperHemisphere.getSkyVisibility() + this.lowerHemisphere.getSkyVisibility()) / 2F;
+        return (upperHemisphere.getSkyVisibility() + lowerHemisphere.getSkyVisibility()) / 2F;
     }
 
     public void update() {
@@ -62,41 +60,41 @@ public class Sphere extends AbstractEnvironmentContext {
         BlockPos pos = getPlayer().getBlockPos();
 
         if (world.isChunkLoaded(pos.getX() >> 4, pos.getZ() << 4)) {
-            this.altitude = 0;
-
             BlockPos.Mutable mut = new BlockPos.Mutable().set(pos);
 
+            int count = 0;
             while (world.getBlockState(mut).isAir() && mut.getY() > 0) {
-                this.altitude += 1;
+                count += 1;
                 mut.move(Direction.DOWN);
             }
+            altitude = count;
 
-            this.bossBars.clear();
+            bossBars.clear();
 
-            BossBarHud bossBarHud = MinecraftClient.getInstance().inGameHud.getBossBarHud();
+            var bossBarHud = MinecraftClient.getInstance().inGameHud.getBossBarHud();
             Map<UUID, ClientBossBar> bossBarMap = ((BossBarHudAccessor) bossBarHud).getBossBars();
 
-            for (BossBar bossBar : bossBarMap.values()) {
+            for (var bossBar : bossBarMap.values()) {
                 String value = bossBar.getName().getContent() instanceof TranslatableTextContent translatable ? translatable.getKey() : bossBar.getName().toString();
-                this.bossBars.add(value);
+                bossBars.add(value);
             }
 
-            this.elevation = pos.getY();
-            this.isDay = world.isDay();
-            this.isRainy = world.isRaining();
-            this.isStormy = world.isThundering();
-            this.vehicle = getPlayer().getVehicle();
+            elevation = pos.getY();
+            isDay = world.isDay();
+            isRainy = world.isRaining();
+            isStormy = world.isThundering();
+            vehicle = getPlayer().getVehicle();
 
-            ContextUtil.EXECUTOR.execute(() -> this.upperHemisphere.update(pos.up()));
-            ContextUtil.EXECUTOR.execute(() -> this.lowerHemisphere.update(pos.down()));
+            ContextUtil.EXECUTOR.execute(() -> upperHemisphere.update(pos.up()));
+            ContextUtil.EXECUTOR.execute(() -> lowerHemisphere.update(pos.down()));
         }
     }
 
     public EnvironmentContext getUpperHemisphere() {
-        return this.upperHemisphere;
+        return upperHemisphere;
     }
 
     public EnvironmentContext getLowerHemisphere() {
-        return this.lowerHemisphere;
+        return lowerHemisphere;
     }
 }

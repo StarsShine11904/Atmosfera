@@ -27,8 +27,8 @@ public final class ContextUtil {
     static {
         Map<EnvironmentContext.Shape, Map<EnvironmentContext.Size, Collection<byte[]>>> offsets = new EnumMap<>(EnvironmentContext.Shape.class);
 
-        for (EnvironmentContext.Size size : EnvironmentContext.Size.values()) {
-            BlockPos origin = new BlockPos(0, 0, 0);
+        for (var size : EnvironmentContext.Size.values()) {
+            var origin = new BlockPos(0, 0, 0);
 
             byte radius = size.radius;
             for (byte x = 0; x <= radius + 1; ++x) {
@@ -73,12 +73,12 @@ public final class ContextUtil {
             }
         }
 
-        for (EnvironmentContext.Shape shape : offsets.keySet()) {
+        for (var shape : offsets.keySet()) {
             int shapeOrdinal = shape.ordinal();
             var shapes = offsets.get(shape);
             OFFSETS[shapeOrdinal] = new byte[shapes.size()][][];
 
-            for (EnvironmentContext.Size size : shapes.keySet()) {
+            for (var size : shapes.keySet()) {
                 int sizeOrdinal = size.ordinal();
                 var sizes = shapes.get(size);
                 OFFSETS[shapeOrdinal][sizeOrdinal] = new byte[sizes.size()][];

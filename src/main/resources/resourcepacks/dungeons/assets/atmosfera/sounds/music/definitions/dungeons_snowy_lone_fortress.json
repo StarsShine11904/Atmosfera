@@ -8,6 +8,8 @@
       "type": "percent_biome",
       "min": 0.75,
       "biomes": [
+        "#c:is_taiga",
+        "#is_taiga",
         "#taiga",
         "minecraft:snowy_taiga",
         "minecraft:snowy_taiga_hills",
