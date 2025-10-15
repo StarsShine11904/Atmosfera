@@ -13,7 +13,6 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.util.registry.RegistryEntry;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,7 +55,7 @@ public class AtmosphericSoundHandler {
         if (world == null)
             return;
 
-            world.atmosfera$updateEnvironmentContext();
+        world.atmosfera$updateEnvironmentContext();
 
         playingSounds.values().removeIf(AtmosphericSoundInstance::isDone);
 
