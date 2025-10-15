@@ -6,10 +6,10 @@ import dev.hephaestus.atmosfera.world.context.EnvironmentContext;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
-public record DimensionEffectsModifier(Identifier skyProperties) implements AtmosphericSoundModifier, AtmosphericSoundModifier.Factory {
+public record DimensionEffectsModifier(Identifier id) implements AtmosphericSoundModifier, AtmosphericSoundModifier.Factory {
     @Override
     public float getModifier(EnvironmentContext context) {
-        return context.getPlayer().getWorld().getDimension().effects().equals(this.skyProperties) ? 1 : 0;
+        return context.getPlayer().getWorld().getDimension().effects().equals(id) ? 1 : 0;
     }
 
     @Override

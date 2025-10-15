@@ -11,15 +11,14 @@ import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
-public record RidingCondition(ImmutableList<EntityType<?>> types) implements AtmosphericSoundModifier, AtmosphericSoundModifier.Factory {
-
+public record RidingCondition(ImmutableList<EntityType<?>> entityTypes) implements AtmosphericSoundModifier, AtmosphericSoundModifier.Factory {
     @Override
     public float getModifier(EnvironmentContext context) {
         Entity vehicle = context.getVehicle();
 
         if (vehicle != null) {
-            for (EntityType<?> type : this.types) {
-                if (vehicle.getType().equals(type)) {
+            for (var entityType : entityTypes) {
+                if (vehicle.getType().equals(entityType)) {
                     return 1;
                 }
             }
@@ -34,18 +33,20 @@ public record RidingCondition(ImmutableList<EntityType<?>> types) implements Atm
     }
 
     public static Factory create(JsonObject object) {
-        ImmutableList.Builder<EntityType<?>> types = ImmutableList.builder();
+        var entityTypes = ImmutableList.<EntityType<?>>builder();
 
         JsonElement value = object.get("value");
 
         if (value.isJsonPrimitive()) {
-            Registries.ENTITY_TYPE.getOrEmpty(Identifier.of(value.getAsString())).ifPresent(types::add);
+            Identifier id = Identifier.of(value.getAsString());
+            Registries.ENTITY_TYPE.getOrEmpty(id).ifPresent(entityTypes::add);
         } else if (value.isJsonArray()) {
             for (JsonElement e : value.getAsJsonArray()) {
-                Registries.ENTITY_TYPE.getOrEmpty(Identifier.of(e.getAsString())).ifPresent(types::add);
+                Identifier id = Identifier.of(e.getAsString());
+                Registries.ENTITY_TYPE.getOrEmpty(id).ifPresent(entityTypes::add);
             }
         }
 
-        return new RidingCondition(types.build());
+        return new RidingCondition(entityTypes.build());
     }
 }

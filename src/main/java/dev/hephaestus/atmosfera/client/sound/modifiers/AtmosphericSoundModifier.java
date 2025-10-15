@@ -11,7 +11,7 @@ public interface AtmosphericSoundModifier {
         AtmosphericSoundModifier create(World world);
     }
 
-    interface FactoryFactory {
-        AtmosphericSoundModifier.Factory create(JsonObject object);
+    interface FactoryDeserializer {
+        AtmosphericSoundModifier.Factory deserialize(JsonObject object);
     }
 }

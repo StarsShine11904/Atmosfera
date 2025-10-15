@@ -22,41 +22,41 @@ abstract class AbstractEnvironmentContext implements EnvironmentContext {
 
     @Override
     public float getAltitude() {
-        return this.altitude;
+        return altitude;
     }
 
     @Override
     public float getElevation() {
-        return this.elevation;
+        return elevation;
     }
 
     @Override
     public boolean isDaytime() {
-        return this.isDay;
+        return isDay;
     }
 
     @Override
     public boolean isRainy() {
-        return this.isRainy;
+        return isRainy;
     }
 
     @Override
     public boolean isStormy() {
-        return this.isStormy;
+        return isStormy;
     }
 
     @Override
     public @Nullable Entity getVehicle() {
-        return this.vehicle;
+        return vehicle;
     }
 
     @Override
     public ClientPlayerEntity getPlayer() {
-        return this.player;
+        return player;
     }
 
     @Override
     public Collection<String> getBossBars() {
-        return this.bossBars;
+        return bossBars;
     }
 }

@@ -2,11 +2,11 @@ package dev.hephaestus.atmosfera.client.sound.modifiers.implementations;
 
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dev.hephaestus.atmosfera.client.sound.modifiers.AtmosphericSoundModifier;
+import dev.hephaestus.atmosfera.client.sound.modifiers.CommonAttributes.Bound;
+import dev.hephaestus.atmosfera.client.sound.modifiers.CommonAttributes.Range;
 import dev.hephaestus.atmosfera.world.context.EnvironmentContext;
-import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.TagKey;
@@ -15,94 +15,82 @@ import net.minecraft.util.JsonHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 
-public record PercentBiomeModifier(float min, float max, ImmutableCollection<RegistryEntry<Biome>> biomes, ImmutableCollection<TagKey<Biome>> biomeTags) implements AtmosphericSoundModifier {
-    public PercentBiomeModifier(float min, float max, ImmutableCollection<RegistryEntry<Biome>> biomes, ImmutableCollection<TagKey<Biome>> biomeTags) {
-        ImmutableCollection.Builder<RegistryEntry<Biome>> biomesBuilder = ImmutableList.builder();
+import static dev.hephaestus.atmosfera.client.sound.modifiers.CommonAttributes.getBound;
+import static dev.hephaestus.atmosfera.client.sound.modifiers.CommonAttributes.getRange;
+
+public record PercentBiomeModifier(Range range, Bound bound, ImmutableCollection<RegistryEntry<Biome>> biomes, ImmutableCollection<TagKey<Biome>> biomeTags) implements AtmosphericSoundModifier {
+    public PercentBiomeModifier(Range range, Bound bound, ImmutableCollection<RegistryEntry<Biome>> biomes, ImmutableCollection<TagKey<Biome>> biomeTags) {
+        var biomesBuilder = ImmutableList.<RegistryEntry<Biome>>builder();
 
         // Remove biomes that are already present in tags so that they aren't counted twice
         biomes:
-        for (RegistryEntry<Biome> biomeEntry : biomes) {
-            for (TagKey<Biome> tag : biomeTags) {
-                if (biomeEntry.isIn(tag)) {
+        for (var biome : biomes) {
+            for (var tag : biomeTags) {
+                if (biome.isIn(tag)) {
                     continue biomes;
                 }
             }
 
-            biomesBuilder.add(biomeEntry);
+            biomesBuilder.add(biome);
         }
 
         this.biomes = biomesBuilder.build();
         this.biomeTags = biomeTags;
-        this.min = min;
-        this.max = max;
+        this.range = range;
+        this.bound = bound;
     }
 
     @Override
     public float getModifier(EnvironmentContext context) {
-        float modifier = 0F;
+        float modifier = 0;
 
-        for (RegistryEntry<Biome> biomeEntry : this.biomes) {
+        for (var biomeEntry : this.biomes) {
             modifier += context.getBiomePercentage(biomeEntry.value());
         }
 
-        for (TagKey<Biome> tag : this.biomeTags) {
+        for (var tag : this.biomeTags) {
             modifier += context.getBiomeTagPercentage(tag);
         }
 
-        return modifier >= this.min
-                ? (modifier - this.min) * (1.0F / (this.max - this.min))
-                : 0;
+        return range.apply(bound.apply(modifier));
     }
 
     public static AtmosphericSoundModifier.Factory create(JsonObject object) {
-
-        ImmutableCollection.Builder<Identifier> biomes = ImmutableList.builder();
-        ImmutableCollection.Builder<Identifier> tags = ImmutableList.builder();
+        var biomes = ImmutableList.<Identifier>builder();
+        var tags = ImmutableList.<Identifier>builder();
 
         JsonHelper.getArray(object, "biomes").forEach(biome -> {
             if (biome.getAsString().startsWith("#")) {
                 tags.add(Identifier.of(biome.getAsString().substring(1)));
             } else {
-                Identifier biomeID = Identifier.of(biome.getAsString());
-                biomes.add(biomeID);
+                biomes.add(Identifier.of(biome.getAsString()));
             }
         });
 
-        float min = 0, max = 1;
+        var range = getRange(object);
+        var bound = getBound(object);
 
-        if (object.has("range")) {
-            JsonArray array = object.getAsJsonArray("range");
-            min = array.get(0).getAsFloat();
-            max = array.get(1).getAsFloat();
-        }
-
-        return new PercentBiomeModifier.Factory(min, max, biomes.build(), tags.build());
+        return new PercentBiomeModifier.Factory(range, bound, biomes.build(), tags.build());
     }
 
-    private record Factory(float min, float max, ImmutableCollection<Identifier> biomes, ImmutableCollection<Identifier> biomeTags) implements AtmosphericSoundModifier.Factory {
-
+    private record Factory(Range range, Bound bound, ImmutableCollection<Identifier> biomes, ImmutableCollection<Identifier> biomeTags) implements AtmosphericSoundModifier.Factory {
         @Override
         public AtmosphericSoundModifier create(World world) {
-            ImmutableCollection.Builder<RegistryEntry<Biome>> biomes = ImmutableList.builder();
+            var biomes = ImmutableList.<RegistryEntry<Biome>>builder();
 
-            Registry<Biome> biomeRegistry = world.getRegistryManager().get(RegistryKeys.BIOME);
+            var biomeRegistry = world.getRegistryManager().get(RegistryKeys.BIOME);
 
-            for (Identifier id : this.biomes) {
-                Biome biome = biomeRegistry.get(id);
-
-                if (biome != null) {
-                    RegistryEntry<Biome> biomeEntry = biomeRegistry.entryOf(biomeRegistry.getKey(biome).get());// should never throw
-                    biomes.add(biomeEntry);
-                }
+            for (var id : this.biomes) {
+                biomeRegistry.getEntry(id).ifPresent(biomes::add);
             }
 
-            ImmutableCollection.Builder<TagKey<Biome>> tags = ImmutableList.builder();
+            var tags = ImmutableList.<TagKey<Biome>>builder();
 
-            for (Identifier id : this.biomeTags) {
+            for (var id : this.biomeTags) {
                 tags.add(TagKey.of(RegistryKeys.BIOME, id));
             }
 
-            return new PercentBiomeModifier(this.min, this.max, biomes.build(), tags.build());
+            return new PercentBiomeModifier(range, bound, biomes.build(), tags.build());
         }
     }
 }
