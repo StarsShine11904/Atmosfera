@@ -6,8 +6,7 @@ import dev.hephaestus.atmosfera.world.context.EnvironmentContext;
 import net.minecraft.util.Identifier;
 
 public record AtmosphericSoundDefinition(Identifier id, Identifier soundId,
-                                         EnvironmentContext.Shape shape,
-                                         EnvironmentContext.Size size,
+                                         EnvironmentContext.Shape shape, EnvironmentContext.Size size,
                                          int defaultVolume, boolean hasSubtitleByDefault,
-                                         ImmutableCollection<AtmosphericSoundModifier.Factory> modifiers) {
+                                         ImmutableCollection<AtmosphericSoundModifier.Factory> modifierFactories) {
 }

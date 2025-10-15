@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     https://www.apache.org/licenses/LICENSE-2.0
+ *	 https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,10 @@
 
 package dev.hephaestus.atmosfera;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import dev.hephaestus.atmosfera.client.sound.AtmosphericSoundDefinition;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
@@ -30,12 +33,16 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
-import java.io.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.TreeMap;
 
 public class AtmosferaConfig {
+	public static Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("atmosfera.json");
+
 	private static final TreeMap<Identifier, Integer> VOLUME_MODIFIERS = new TreeMap<>(Comparator.comparing(id -> I18n.translate(id.toString())));
 	private static final TreeMap<Identifier, Boolean> SUBTITLE_MODIFIERS = new TreeMap<>(Comparator.comparing(id -> I18n.translate(id.toString())));
 	private static boolean printDebugMessages = false;
@@ -43,109 +50,113 @@ public class AtmosferaConfig {
 	private static float customMusicWeightScale = 2.5f;
 
 	static {
-		read();
-	}
-
-	private static void read() {
-		try (InputStream fi = new FileInputStream("config" + File.separator + "atmosfera.json")) {
-			JsonObject json = (JsonObject) JsonParser.parseReader(new InputStreamReader(fi));
-
-			if (json.has("general")) {
-				JsonObject general = json.getAsJsonObject("general");
-
-				if (general.has("enable_custom_music")) {
-					enableCustomMusic = general.get("enable_custom_music").getAsBoolean();
-				}
-
-				if (general.has("custom_music_weight_scale")) {
-					customMusicWeightScale = general.get("custom_music_weight_scale").getAsFloat();
-				}
-			}
-
-			if (json.has("volumes")) {
-				for (Map.Entry<String, JsonElement> element : json.get("volumes").getAsJsonObject().entrySet()) {
-					if (element.getValue().isJsonPrimitive()) {
-						VOLUME_MODIFIERS.put(Identifier.of(element.getKey()), element.getValue().getAsInt());
-					}
-				}
-			}
-
-			if (json.has("subtitles")) {
-				for (Map.Entry<String, JsonElement> element : json.get("subtitles").getAsJsonObject().entrySet()) {
-					if (element.getValue().isJsonPrimitive()) {
-						SUBTITLE_MODIFIERS.put(Identifier.of(element.getKey()), element.getValue().getAsBoolean());
-					}
-				}
-			}
-
-			if (json.has("debug")) {
-				JsonObject debug = json.getAsJsonObject("debug");
-
-				if (debug.has("print_debug_messages")) {
-					printDebugMessages = debug.get("print_debug_messages").getAsBoolean();
-				}
-			}
-		} catch (FileNotFoundException e) {
-			Atmosfera.log("The user config file was not found. Creating the default config...");
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			for (AtmosphericSoundDefinition sound : Atmosfera.SOUND_DEFINITIONS.values()) {
-				VOLUME_MODIFIERS.putIfAbsent(sound.id(), sound.defaultVolume());
-				SUBTITLE_MODIFIERS.putIfAbsent(sound.id(), sound.hasSubtitleByDefault());
-			}
-
-			for (AtmosphericSoundDefinition sound : Atmosfera.MUSIC_DEFINITIONS.values()) {
-				VOLUME_MODIFIERS.putIfAbsent(sound.id(), sound.defaultVolume());
-			}
-
+		if (!Files.exists(CONFIG_PATH)) {
 			write();
+		} else {
+			try {
+				read();
+			} catch (Exception e) {
+				Atmosfera.error("failed to read config! overwriting with default config...", e);
+				write();
+			}
 		}
 	}
 
-	private static void write() {
-		File configFile = new File("config" + File.separator + "atmosfera.json");
+	public static void read() throws IOException {
+		if (!Files.exists(CONFIG_PATH))
+			return;
+
+		String jsonString = Files.readString(CONFIG_PATH);
+
+		JsonObject json = JsonParser.parseString(jsonString).getAsJsonObject();
+
+		if (json.has("general")) {
+			JsonObject general = json.getAsJsonObject("general");
+
+			if (general.has("enable_custom_music")) {
+				enableCustomMusic = general.get("enable_custom_music").getAsBoolean();
+			}
+
+			if (general.has("custom_music_weight_scale")) {
+				customMusicWeightScale = general.get("custom_music_weight_scale").getAsFloat();
+			}
+		}
+
+		if (json.has("volumes")) {
+			for (var entry : json.get("volumes").getAsJsonObject().entrySet()) {
+				if (entry.getValue().isJsonPrimitive()) {
+					VOLUME_MODIFIERS.put(Identifier.of(entry.getKey()), entry.getValue().getAsInt());
+				}
+			}
+		}
+
+		if (json.has("subtitles")) {
+			for (var entry : json.get("subtitles").getAsJsonObject().entrySet()) {
+				if (entry.getValue().isJsonPrimitive()) {
+					SUBTITLE_MODIFIERS.put(Identifier.of(entry.getKey()), entry.getValue().getAsBoolean());
+				}
+			}
+		}
+
+		if (json.has("debug")) {
+			JsonObject debug = json.getAsJsonObject("debug");
+
+			if (debug.has("print_debug_messages")) {
+				printDebugMessages = debug.get("print_debug_messages").getAsBoolean();
+			}
+		}
+	}
+
+	// resource reloader callback
+	public static void loadedSoundDefinitions() {
+		for (AtmosphericSoundDefinition sound : Atmosfera.SOUND_DEFINITIONS.values()) {
+			VOLUME_MODIFIERS.putIfAbsent(sound.id(), sound.defaultVolume());
+			SUBTITLE_MODIFIERS.putIfAbsent(sound.id(), sound.hasSubtitleByDefault());
+		}
+
+		for (AtmosphericSoundDefinition sound : Atmosfera.MUSIC_DEFINITIONS.values()) {
+			VOLUME_MODIFIERS.putIfAbsent(sound.id(), sound.defaultVolume());
+		}
+
+		write();
+	}
+
+	public static String serialize() {
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		try (BufferedWriter writer = new BufferedWriter(new FileWriter(configFile))) {
-			JsonObject jsonObject = new JsonObject();
 
-			JsonObject general = new JsonObject();
-			general.addProperty("enable_custom_music", enableCustomMusic);
-			general.addProperty("custom_music_weight_scale", customMusicWeightScale);
+		JsonObject general = new JsonObject();
+		general.addProperty("enable_custom_music", enableCustomMusic);
+		general.addProperty("custom_music_weight_scale", customMusicWeightScale);
 
-			jsonObject.add("general", general);
-			jsonObject.add("volumes", gson.toJsonTree(VOLUME_MODIFIERS));
-			jsonObject.add("subtitles", gson.toJsonTree(SUBTITLE_MODIFIERS));
+		JsonObject debug = new JsonObject();
+		debug.addProperty("print_debug_messages", printDebugMessages);
 
-			JsonObject debug = new JsonObject();
-			debug.addProperty("print_debug_messages", printDebugMessages);
+		JsonObject config = new JsonObject();
+		config.add("general", general);
+		config.add("volumes", gson.toJsonTree(VOLUME_MODIFIERS));
+		config.add("subtitles", gson.toJsonTree(SUBTITLE_MODIFIERS));
+		config.add("debug", debug);
 
-			jsonObject.add("debug", debug);
+		return gson.toJson(config);
+	}
 
-			writer.write(gson.toJson(jsonObject));
-		} catch (IOException e) {
-			Atmosfera.warn("Failed to save the config to the file.");
+	public static void write() {
+		try {
+			Files.writeString(CONFIG_PATH, serialize());
+		} catch (Exception e) {
+			Atmosfera.error("could not write config file!", e);
 		}
 	}
 
 	public static float volumeModifier(Identifier soundId) {
-		try {
-			return (VOLUME_MODIFIERS.getOrDefault(
-					soundId, Atmosfera.SOUND_DEFINITIONS.getOrDefault(
-							soundId, Atmosfera.MUSIC_DEFINITIONS.get(soundId)).defaultVolume())) / 100F;
-		} catch (NullPointerException e) {
-			Atmosfera.warn("Unknown sound: {}", soundId);
-			throw e;
-		}
+		return VOLUME_MODIFIERS.getOrDefault(soundId, 100) / 100F;
 	}
 
 	public static boolean showSubtitle(Identifier soundId) {
-		return SUBTITLE_MODIFIERS.getOrDefault(soundId, Atmosfera.SOUND_DEFINITIONS.get(soundId).hasSubtitleByDefault());
+		return SUBTITLE_MODIFIERS.getOrDefault(soundId, true);
 	}
 
 	public static Screen getScreen(Screen parent) {
-		read();
-
 		ConfigBuilder builder = ConfigBuilder.create().setTitle(Text.literal(Atmosfera.MOD_NAME));
 		builder.setParentScreen(parent);
 		builder.setDefaultBackgroundTexture(Identifier.of("minecraft:textures/block/light_blue_stained_glass.png"));

@@ -6,6 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import dev.hephaestus.atmosfera.Atmosfera;
+import dev.hephaestus.atmosfera.AtmosferaConfig;
 import dev.hephaestus.atmosfera.client.sound.modifiers.AtmosphericSoundModifier;
 import dev.hephaestus.atmosfera.client.sound.modifiers.implementations.ConfigModifier;
 import dev.hephaestus.atmosfera.world.context.EnvironmentContext;
@@ -15,73 +16,59 @@ import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 
-import java.io.InputStreamReader;
 import java.util.Locale;
 import java.util.Map;
 
-public record AtmosphericSoundSerializer(String sourceFolder, Map<Identifier, AtmosphericSoundDefinition> destination) implements SimpleSynchronousResourceReloadListener {
+public class SoundDefinitionsReloader implements SimpleSynchronousResourceReloadListener {
     @Override
     public Identifier getFabricId() {
-        return Atmosfera.id(this.sourceFolder);
+        return Atmosfera.id("sound_deserializer");
     }
 
     @Override
     public void reload(ResourceManager manager) {
-        this.destination.clear();
+        loadSoundDefinitions(manager, "sounds/ambient", Atmosfera.SOUND_DEFINITIONS);
+        loadSoundDefinitions(manager, "sounds/music", Atmosfera.MUSIC_DEFINITIONS);
+        AtmosferaConfig.loadedSoundDefinitions();
+    }
 
-        Map<Identifier, Resource> resources = manager.findResources(this.sourceFolder + "/definitions", (id) -> id.getPath().endsWith(".json"));
+    private static void loadSoundDefinitions(ResourceManager manager, String sourceFolder, Map<Identifier, AtmosphericSoundDefinition> destination) {
+        destination.clear();
+
+        Map<Identifier, Resource> resources = manager.findResources(sourceFolder + "/definitions", id -> id.getPath().endsWith(".json"));
 
         for (Identifier resource : resources.keySet()) {
             Identifier id = Identifier.of(
                     resource.getNamespace(),
                     resource.getPath().substring(
-                            resource.getPath().indexOf("definitions/") + 12,
+                            resource.getPath().indexOf("definitions/") + "definitions/".length(),
                             resource.getPath().indexOf(".json")
                     )
             );
 
-            try {
-                JsonObject json = JsonParser.parseReader(new InputStreamReader(resources.get(resource).getInputStream())).getAsJsonObject();
+            try (var reader = resources.get(resource).getReader()) {
+                JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
 
                 Identifier soundId = Identifier.of(JsonHelper.getString(json, "sound"));
 
                 EnvironmentContext.Shape shape = getShape(json, id);
                 EnvironmentContext.Size size = getSize(json, id);
                 ImmutableCollection<AtmosphericSoundModifier.Factory> modifiers = getModifiers(json, id);
-                int defaultVolume = getInteger(json, "default_volume", 100);
-                boolean showSubtitlesByDefault = getBoolean(json, "show_subtitles_by_default", true);
+                int defaultVolume = JsonHelper.getInt(json, "default_volume", 100);
+                boolean showSubtitlesByDefault = JsonHelper.getBoolean(json, "default_subtitle", true);
 
-                this.destination.put(id, new AtmosphericSoundDefinition(id, soundId, shape, size, defaultVolume, showSubtitlesByDefault, modifiers));
+                destination.put(id, new AtmosphericSoundDefinition(id, soundId, shape, size, defaultVolume, showSubtitlesByDefault, modifiers));
             } catch (Exception e) {
                 Atmosfera.error("Failed to load sound event '{}'", id, e);
             }
         }
     }
 
-    private int getInteger(JsonObject json, String key, int ifAbsent) {
-        JsonElement element = json.get(key);
-        if (element != null && element.isJsonPrimitive() && element.getAsJsonPrimitive().isBoolean()) {
-            return element.getAsInt();
-        }
-
-        return ifAbsent;
-    }
-
-    private boolean getBoolean(JsonObject json, String key, boolean ifAbsent) {
-        JsonElement element = json.get(key);
-
-        if (element != null && element.isJsonPrimitive() && element.getAsJsonPrimitive().isBoolean()) {
-            return element.getAsBoolean();
-        }
-
-        return ifAbsent;
-    }
-
     private static EnvironmentContext.Shape getShape(JsonObject json, Identifier id) {
         if (json.has("shape")) {
             return EnvironmentContext.Shape.valueOf(json.getAsJsonPrimitive("shape").getAsString().toUpperCase(Locale.ROOT));
         } else {
-            throw new RuntimeException(String.format("Sound definition '%s' is missing 'shape' field.", id));
+            throw new RuntimeException("Sound definition '%s' is missing \"shape\" field.".formatted(id));
         }
     }
 
@@ -89,29 +76,30 @@ public record AtmosphericSoundSerializer(String sourceFolder, Map<Identifier, At
         if (json.has("size")) {
             return json.has("size") ? EnvironmentContext.Size.valueOf(json.getAsJsonPrimitive("size").getAsString().toUpperCase(Locale.ROOT)) : EnvironmentContext.Size.MEDIUM;
         } else {
-            throw new RuntimeException(String.format("Sound definition '%s' is missing 'size' field.", id));
+            throw new RuntimeException("Sound definition '%s' is missing \"size\" field.".formatted(id));
         }
     }
 
     private static ImmutableCollection<AtmosphericSoundModifier.Factory> getModifiers(JsonObject json, Identifier id) {
-        ImmutableCollection.Builder<AtmosphericSoundModifier.Factory> modifiers = ImmutableList.builder();
+        var modifiers = ImmutableList.<AtmosphericSoundModifier.Factory>builder();
 
         modifiers.add(new ConfigModifier(id));
 
         if (json.has("modifiers")) {
             for (JsonElement element : json.get("modifiers").getAsJsonArray()) {
-                if (!element.getAsJsonObject().has("type")) {
-                    throw new RuntimeException(String.format("Modifier for sound definition '%s' is missing 'type' field.", id));
+                JsonObject modifierJson = element.getAsJsonObject();
+
+                if (!modifierJson.has("type")) {
+                    throw new RuntimeException("Modifier for sound definition '%s' is missing \"type\" field.".formatted(id));
                 }
 
-                String type = element.getAsJsonObject().get("type").getAsString();
-                AtmosphericSoundModifier.FactoryFactory factory = AtmosphericSoundModifierRegistry
-                        .get(type);
+                String type = modifierJson.get("type").getAsString();
+                var factory = AtmosphericSoundModifierRegistry.get(type);
 
                 if (factory == null) {
-                    Atmosfera.log("Failed to create modifier of type '{}'", type);
+                    Atmosfera.warn("Modifier type \"{}\" does not exist", type);
                 } else {
-                    modifiers.add(factory.create(element.getAsJsonObject()));
+                    modifiers.add(factory.deserialize(modifierJson));
                 }
             }
         }
