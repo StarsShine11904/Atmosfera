@@ -56,7 +56,7 @@ public class AtmosphericSoundHandler {
         if (world == null)
             return;
 
-            world.atmosfera$updateEnvironmentContext();
+        world.atmosfera$updateEnvironmentContext();
 
         playingSounds.values().removeIf(AtmosphericSoundInstance::isDone);
 
