@@ -20,9 +20,8 @@ import dev.hephaestus.atmosfera.client.sound.AtmosphericSoundDefinition;
 import dev.hephaestus.atmosfera.client.sound.SoundDefinitionsReloader;
 import dev.hephaestus.atmosfera.world.context.EnvironmentContext;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
+import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
@@ -63,7 +62,7 @@ public class Atmosfera implements ClientModInitializer {
 	public void onInitializeClient() {
 		var modContainer = FabricLoader.getInstance().getModContainer(MODID).orElseThrow();
 
-		ResourceManagerHelper.registerBuiltinResourcePack(id("dungeons"), modContainer, ResourcePackActivationType.DEFAULT_ENABLED);
+		ResourceLoader.registerBuiltinPack(id("dungeons"), modContainer, PackActivationType.DEFAULT_ENABLED);
 		ResourceLoader.get(ResourceType.CLIENT_RESOURCES).registerReloader(id("sound_deserializer"), new SoundDefinitionsReloader());
 
 		EnvironmentContext.init();
