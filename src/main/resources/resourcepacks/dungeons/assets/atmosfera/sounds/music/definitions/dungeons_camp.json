@@ -5,7 +5,7 @@
   "size": "small",
   "modifiers": [
     {
-      "type": "dimension_effects",
+      "type": "dimension",
       "id": "minecraft:overworld"
     }
   ]
