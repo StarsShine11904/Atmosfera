@@ -29,7 +29,8 @@ public final class AtmosphericSoundModifierRegistry {
         register(PercentBlockModifier::create, "percent_block");
         register(PercentBiomeModifier::create, "percent_biome");
         register(RidingCondition::create, "riding");
-        register(DimensionEffectsModifier::create, "dimension_effects");
+        register(DimensionModifier::create, "dimension");
+        register(DimensionModifier::create, "dimension_effects"); // for backwards compatibility
         register(BossBarCondition::create, "boss_bar");
     }
 }
