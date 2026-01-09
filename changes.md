@@ -1,3 +1,7 @@
+## 2.5.1
+
+- add Traditional Chinese (zh_tw) translation, thanks to StarsShine11904!
+
 ## 2.5.0
 
 - port to 1.21.11
