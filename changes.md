@@ -1,3 +1,13 @@
+## 2.5.1
+
+- add Traditional Chinese (zh_tw) translation, thanks to StarsShine11904!
+
+## 2.5.0
+
+- port to 1.21.11
+- Atmospheric Resource Packs: replace `"dimension_effects"` modifier with `"dimension"`, which does exactly what you expect  
+  (for backwards compatibility, `"dimension_effects"` is an alias to `"dimension"`, even if they're not exactly the same)
+
 ## 2.4.0
 
 This update addresses many issues with Atmospheric Resource Packs:

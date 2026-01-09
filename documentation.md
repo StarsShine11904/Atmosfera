@@ -237,17 +237,14 @@ Parameters:
 
 Input: The percentage of matching biomes in the environment
 
-#### Type: "dimension_effects"
+#### Type: "dimension" ("dimension_effects" before 2.5.0)
 
 Parameters:
 
-- `"id"`: id of dimension effect  
-  In vanilla this is one of `"minecraft:overworld"`, `"minecraft:the_nether"`, or `"minecraft:the_end"`
+- `"id"`: id of dimension type  
+  In vanilla this is one of `"minecraft:overworld"`, `"minecraft:the_nether"`, `"minecraft:the_end"`, or `"minecraft:overworld_caves"`
 
-Outputs 1 if the current dimension effects match the given `id`, otherwise 0.
-
-Dimension effects refer to the look of the sky box, fog, and colors thereof.  
-Checking for dimension effects is not quite the same as a dimension check, as other (modded) dimensions might use the same dimension effects.
+Outputs 1 if the current dimension type match the given `id`, otherwise 0.
 
 #### Type: "riding"
 
