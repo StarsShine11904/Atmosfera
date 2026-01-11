@@ -27,10 +27,17 @@ public class AtmosphericSoundHandler {
 
     private static final Map<AtmosphericSound, MusicSound> MUSIC = new HashMap<>();
 
-    private final ImmutableList<AtmosphericSound> sounds;
-    private final ImmutableList<AtmosphericSound> musics;
+    private ImmutableList<AtmosphericSound> sounds;
+    private ImmutableList<AtmosphericSound> musics;
+
+    private final ClientWorld world;
 
     public AtmosphericSoundHandler(ClientWorld world) {
+        this.world = world;
+        reloadDefinitions();
+    }
+
+    public void reloadDefinitions() {
         this.sounds = getSoundsFromDefinitions(Atmosfera.SOUND_DEFINITIONS, world);
         this.musics = getSoundsFromDefinitions(Atmosfera.MUSIC_DEFINITIONS, world);
     }
@@ -52,13 +59,9 @@ public class AtmosphericSoundHandler {
     }
 
     public void tick() {
-        var client = MinecraftClient.getInstance();
-        var world = client.world;
-        if (world == null)
-            return;
-
         world.atmosfera$updateEnvironmentContext();
 
+        var client = MinecraftClient.getInstance();
         var tickingSounds = ((SoundSystemAccessor) ((SoundManagerAccessor) client.getSoundManager()).getSoundSystem()).getTickingSounds();
 
         for (var sound : sounds) {
@@ -82,8 +85,7 @@ public class AtmosphericSoundHandler {
     @SuppressWarnings("DataFlowIssue")
     public MusicSound getMusicSound(MusicSound original) {
         var client = MinecraftClient.getInstance();
-        var world = client.world;
-        if (world == null || !world.atmosfera$isEnvironmentContextInitialized() || client.options.getSoundVolume(SoundCategory.MUSIC) == 0)
+        if (!world.atmosfera$isEnvironmentContextInitialized() || client.options.getSoundVolume(SoundCategory.MUSIC) == 0)
             return original;
 
         var soundManager = client.getSoundManager();
