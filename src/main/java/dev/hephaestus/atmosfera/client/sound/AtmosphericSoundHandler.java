@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableList;
 import dev.hephaestus.atmosfera.Atmosfera;
 import dev.hephaestus.atmosfera.AtmosferaConfig;
 import dev.hephaestus.atmosfera.client.sound.modifiers.AtmosphericSoundModifier;
+import dev.hephaestus.atmosfera.mixin.SoundManagerAccessor;
+import dev.hephaestus.atmosfera.mixin.SoundSystemAccessor;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -27,7 +29,6 @@ public class AtmosphericSoundHandler {
 
     private final ImmutableList<AtmosphericSound> sounds;
     private final ImmutableList<AtmosphericSound> musics;
-    private final Map<AtmosphericSound, AtmosphericSoundInstance> playingSounds = new HashMap<>();
 
     public AtmosphericSoundHandler(ClientWorld world) {
         this.sounds = getSoundsFromDefinitions(Atmosfera.SOUND_DEFINITIONS, world);
@@ -58,19 +59,21 @@ public class AtmosphericSoundHandler {
 
         world.atmosfera$updateEnvironmentContext();
 
-        playingSounds.values().removeIf(AtmosphericSoundInstance::isDone);
+        var tickingSounds = ((SoundSystemAccessor) ((SoundManagerAccessor) client.getSoundManager()).getSoundSystem()).getTickingSounds();
 
         for (var sound : sounds) {
-            if (playingSounds.containsKey(sound))
+            // don't play sound if it's already playing
+            if (tickingSounds.stream()
+                    .filter(s -> s instanceof AtmosphericSoundInstance)
+                    .map(AtmosphericSoundInstance.class::cast)
+                    .anyMatch(s -> sound.id().equals(s.getId())))
                 continue;
 
             float volume = sound.getVolume(world);
 
             // The non-zero volume prevents the events getting triggered multiple times at volumes near zero.
             if (volume >= 0.0125 && client.options.getSoundVolume(SoundCategory.AMBIENT) > 0) {
-                var soundInstance = new AtmosphericSoundInstance(sound, 0.0001f);
-                playingSounds.put(sound, soundInstance);
-                client.getSoundManager().playNextTick(soundInstance);
+                client.getSoundManager().playNextTick(new AtmosphericSoundInstance(sound, 0.0001f));
                 Atmosfera.debug("volume > 0: {} - {}", sound.id(), volume);
             }
         }
