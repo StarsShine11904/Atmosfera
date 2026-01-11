@@ -1,3 +1,11 @@
+## 2.5.2
+
+You know what? We didn't have any fixes for fundamentally broken features this year yet, so here you go!
+
+- fix `is_daytime` modifier believing it is always day (you can hear owls and crickets now!)
+- fix sounds never replaying after they get muted once
+- (re)loading Atmospheric Resource Packs does not require reloading the world anymore
+
 ## 2.5.1
 
 - add Traditional Chinese (zh_tw) translation, thanks to StarsShine11904!
