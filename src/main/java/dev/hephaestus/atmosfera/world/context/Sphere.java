@@ -80,8 +80,12 @@ public class Sphere extends AbstractEnvironmentContext {
             }
 
             elevation = pos.getY();
-            isDay = world.isDay();
-            isRainy = world.isRaining();
+
+            // count day to sunset as "day". "night" is an hour shorter this way, which is fine
+            long timeOfDay = world.getLevelProperties().getTimeOfDay() % 24000;
+            isDay = 0 <= timeOfDay && timeOfDay < 13000;
+
+            isRainy = world.getLevelProperties().isRaining();
             isStormy = world.isThundering();
             vehicle = getPlayer().getVehicle();
 
