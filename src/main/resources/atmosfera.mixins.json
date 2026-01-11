@@ -7,6 +7,8 @@
 		"BossBarHudAccessor",
 		"MinecraftClientMixin",
 		"MixinClientWorld",
+		"SoundManagerAccessor",
+		"SoundSystemAccessor",
 		"WeightedSoundSetMixin"
 	],
 	"injectors": {

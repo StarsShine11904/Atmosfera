@@ -11,6 +11,7 @@ import dev.hephaestus.atmosfera.client.sound.modifiers.AtmosphericSoundModifier;
 import dev.hephaestus.atmosfera.client.sound.modifiers.implementations.ConfigModifier;
 import dev.hephaestus.atmosfera.world.context.EnvironmentContext;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
@@ -30,6 +31,11 @@ public class SoundDefinitionsReloader implements SimpleSynchronousResourceReload
         loadSoundDefinitions(manager, "sounds/ambient", Atmosfera.SOUND_DEFINITIONS);
         loadSoundDefinitions(manager, "sounds/music", Atmosfera.MUSIC_DEFINITIONS);
         AtmosferaConfig.loadedSoundDefinitions();
+
+        var client = MinecraftClient.getInstance();
+        if (client != null && client.world != null) {
+            client.world.atmosfera$getAtmosphericSoundHandler().reloadDefinitions();
+        }
     }
 
     private static void loadSoundDefinitions(ResourceManager manager, String sourceFolder, Map<Identifier, AtmosphericSoundDefinition> destination) {
