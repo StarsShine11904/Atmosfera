@@ -1,4 +1,5 @@
 {
+  "modmenu.nameTranslation.atmosfera": "Atmosfera",
   "modmenu.descriptionTranslation.atmosfera": "An ambient sound system with customizable, atmospheric sound resources.",
   "config.atmosfera.resource_pack_warning": "No sound event was registered. Activate the built-in or a custom Atmosfera resource pack.",
   "config.category.atmosfera.general": "General",
