@@ -1,4 +1,5 @@
 {
+  "modmenu.nameTranslation.atmosfera": "沉浸式氛圍",
   "modmenu.descriptionTranslation.atmosfera": "一個具有可自定義、氛圍聲音資源的環境音效系統。",
   "config.atmosfera.resource_pack_warning": "未註冊任何聲音事件。請啟用內建或自定義的 Atmosfera 資源包。",
   "config.category.atmosfera.general": "一般",
@@ -13,3 +14,4 @@
   "config.value.atmosfera.custom_music_weight_scale_explanation.@Tooltip": "「權重」指的是音樂被播放的可能性。\n通常，所有音樂具有相同的權重。\n「自定義音樂權重比例」增加了自定義音樂的權重，\n使其比原版音樂更有可能播放。\n請注意，並非所有音樂都能在所有地點播放，\n且原版音樂通常比自定義音樂多得多。\n一般來說，原版與自定義音樂的比例約為 27 比 3。",
   "config.value.atmosfera.enable_custom_music.@Tooltip": "是否使用來自 Atmosfera 資源包的音樂"
 }
+
